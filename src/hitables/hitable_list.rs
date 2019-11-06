@@ -1,17 +1,30 @@
 use crate::physics::{Hitable, HitRecord, Ray};
 
-impl Hitable for Vec<Box<dyn Hitable>> {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32, record: &mut HitRecord) -> bool {
-        let mut tmp_rec = HitRecord::default();
-        let mut hit_anything = false;
+pub struct HitableList {
+    entities: Vec<Box<dyn Hitable>>,
+}
+
+impl HitableList {
+    pub fn new(entities: Vec<Box<dyn Hitable>>) -> Self {
+        HitableList {
+            entities,
+        }
+    }
+}
+
+impl Hitable for HitableList {
+    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let mut tmp_rec: Option<HitRecord> = None;
         let mut closest_so_far = t_max;
-        for hitable in self.iter() {
-            if hitable.hit(r, t_min, closest_so_far, &mut tmp_rec) {
-                hit_anything = true;
-                closest_so_far = tmp_rec.t;
-                *record = tmp_rec;
+        for hitable in self.entities.iter() {
+            match hitable.hit(r, t_min, closest_so_far) {
+                Some(rec) => {
+                    closest_so_far = rec.t;
+                    tmp_rec = Some(rec);
+                },
+                None => {},
             }
         }
-        hit_anything
+        tmp_rec
     }
 }

@@ -1,6 +1,7 @@
 mod math;
 mod physics;
 mod hitables;
+mod materials;
 
 extern crate rand;
 
@@ -8,7 +9,8 @@ use std::fs::File;
 use std::io::Write;
 use math::{Vec3};
 use physics::{Ray, Hitable, HitRecord, Camera};
-use hitables::{Sphere};
+use hitables::{Sphere, HitableList};
+use materials::{Metal, Lambertian};
 use rand::prelude::*;
 
 
@@ -21,15 +23,26 @@ fn random_in_unit_sphere() -> Vec3 {
     p
 }
 
-fn color(r: &Ray, world: &Vec<Box<dyn Hitable>>) -> Vec3 {
-    let mut rec = HitRecord::default();
-    if world.hit(&r, 0.001, std::f32::MAX, &mut rec) {
-        let target = rec.p + rec.normal + random_in_unit_sphere();
-        return 0.5 * color(&Ray::new(rec.p, target - rec.p), &world);
+fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
+    match world.hit(&r, 0.001, std::f32::MAX) {
+        Some(rec) => {
+            let mut scattered = Ray::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(0.0, 0.0, 0.0),
+            );
+            let mut attenuation = Vec3::default();
+            if depth < 50 && rec.material.scatter(r, &rec, &mut attenuation, &mut scattered) {
+                attenuation * color(&scattered, &world, depth + 1)
+            } else {
+                Vec3::new(0.0, 0.0, 0.0)
+            }
+        },
+        None => {
+            let unit_direction = r.direction.unit_vector();
+            let t = 0.5 * (unit_direction.y() + 1.0);
+            (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
+        }
     }
-    let unit_direction = r.direction.unit_vector();
-    let t = 0.5 * (unit_direction.y() + 1.0);
-    (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
 }
 
 
@@ -44,10 +57,36 @@ fn main() -> std::io::Result<()> {
 
     let camera = Camera::default();
 
-    let world: Vec<Box<dyn Hitable>> = vec![
-        Box::new(Sphere::new(0.5, Vec3::new(0.0, 0.0, -1.0))),
-        Box::new(Sphere::new(100.0, Vec3::new(0.0, -100.5, -1.0))),
-    ];
+    let world: HitableList = HitableList::new(vec![
+        Box::new(
+            Sphere::new(
+                0.5,
+                Vec3::new(0.0, 0.0, -1.0),
+                Box::new(Lambertian::new(0.8, 0.3, 0.3))
+            ),
+        ),
+        Box::new(
+            Sphere::new(
+                100.0,
+                Vec3::new(0.0, -100.5, -1.0),
+                Box::new(Lambertian::new(0.8, 0.8, 0.0))
+            ),
+        ),
+        Box::new(
+            Sphere::new(
+                0.5,
+                Vec3::new(1.0, 0.0, -1.0),
+                Box::new(Metal::new(0.8, 0.6, 0.2))
+            ),
+        ),
+        Box::new(
+            Sphere::new(
+                0.5,
+                Vec3::new(-1.0, 0.0, -1.0),
+                Box::new(Metal::new(0.8, 0.8, 0.8)),
+            )
+        ),
+    ]);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
@@ -60,7 +99,7 @@ fn main() -> std::io::Result<()> {
                 let v = (j as f32 + r2) / ny as f32;
                 let ray = camera.get_ray(u, v);
                 let _p = ray.point_at_parameter(2.0);
-                col += color(&ray, &world);
+                col += color(&ray, &world, 0);
             }
             col /= ns as f32;
             col = Vec3::new(col.x().sqrt(), col.y().sqrt(), col.z().sqrt());
