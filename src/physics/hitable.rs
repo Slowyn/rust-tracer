@@ -1,7 +1,6 @@
 use crate::math::{Vec3};
 use crate::physics::ray::{Ray};
 use crate::physics::Material;
-use crate::materials::Lambertian;
 
 #[derive(Copy, Clone)]
 pub struct HitRecord<'a> {
@@ -12,7 +11,7 @@ pub struct HitRecord<'a> {
 }
 
 impl<'a> HitRecord<'a> {
-    pub fn new(t: f32, p: Vec3, normal: Vec3, material: &'a Material) -> Self {
+    pub fn new(t: f32, p: Vec3, normal: Vec3, material: &'a dyn Material) -> Self {
         HitRecord { t, p, normal, material }
     }
 }

@@ -8,7 +8,7 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(radius: f32, center: Vec3, material: Box<Material>) -> Self {
+    pub fn new(radius: f32, center: Vec3, material: Box<dyn Material>) -> Self {
         Sphere {
             r: radius,
             center,

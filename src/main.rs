@@ -8,7 +8,7 @@ extern crate rand;
 use std::fs::File;
 use std::io::Write;
 use math::{Vec3};
-use physics::{Ray, Hitable, HitRecord, Camera};
+use physics::{Ray, Hitable, Camera};
 use hitables::{Sphere, HitableList};
 use materials::{Metal, Lambertian};
 use rand::prelude::*;
