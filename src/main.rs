@@ -142,7 +142,7 @@ fn main() -> std::io::Result<()> {
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
 
 
-    let lookfrom = Vec3::new(5.0, 1.25, 1.55);
+    let lookfrom = Vec3::new(5.5, 1.25, 1.55);
     let lookat = Vec3::new(0.0, 1.0, -2.0);
     let focus_dist = (lookfrom - lookat).length();
     let aperture: f32 = 0.001;
@@ -150,7 +150,7 @@ fn main() -> std::io::Result<()> {
         lookfrom,
         lookat,
         Vec3::new(0.0, 1.0, 0.0),
-        90.0,
+        60.0,
         nx as f32 / ny as f32,
         aperture,
         focus_dist,
