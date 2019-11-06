@@ -134,9 +134,9 @@ fn get_random_scene() -> HitableList {
 
 fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
-    let nx: i32 = 200;
-    let ny: i32 = 100;
-    let ns: i32 = 5;
+    let nx: i32 = 800;
+    let ny: i32 = 400;
+    let ns: i32 = 100;
     let capacity = (nx * ny) as usize;
     let mut content = String::with_capacity(capacity);
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
