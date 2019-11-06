@@ -27,10 +27,7 @@ fn random_in_unit_sphere() -> Vec3 {
 fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
     match world.hit(&r, 0.001, std::f32::MAX) {
         Some(rec) => {
-            let mut scattered = Ray::new(
-                Vec3::new(0.0, 0.0, 0.0),
-                Vec3::new(0.0, 0.0, 0.0),
-            );
+            let mut scattered = Ray::default();
             let mut attenuation = Vec3::default();
             if depth < 50 && rec.material.scatter(r, &rec, &mut attenuation, &mut scattered) {
                 attenuation * color(&scattered, &world, depth + 1)
@@ -134,8 +131,8 @@ fn get_random_scene() -> HitableList {
 
 fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
-    let nx: i32 = 800;
-    let ny: i32 = 400;
+    let nx: i32 = 200;
+    let ny: i32 = 100;
     let ns: i32 = 100;
     let capacity = (nx * ny) as usize;
     let mut content = String::with_capacity(capacity);

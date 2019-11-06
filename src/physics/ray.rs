@@ -18,6 +18,15 @@ impl Ray {
     }
 }
 
+impl Default for Ray {
+    fn default() -> Self {
+        Ray::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(0.0, 0.0, 0.0),
+        )
+    }
+}
+
 pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
     *v - 2.0 * dot(v, n) * *n
 }
