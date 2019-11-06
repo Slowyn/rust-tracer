@@ -87,6 +87,13 @@ fn main() -> std::io::Result<()> {
                 Box::new(Dielectric::new(1.5)),
             )
         ),
+        Box::new(
+            Sphere::new(
+                -0.45,
+                Vec3::new(-1.0, 0.0, -1.0),
+                Box::new(Dielectric::new(1.5)),
+            )
+        ),
     ]);
 
     for j in (0..ny).rev() {
