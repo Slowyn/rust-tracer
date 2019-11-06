@@ -76,14 +76,14 @@ fn main() -> std::io::Result<()> {
             Sphere::new(
                 0.5,
                 Vec3::new(1.0, 0.0, -1.0),
-                Box::new(Metal::new(0.8, 0.6, 0.2))
+                Box::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 1.0))
             ),
         ),
         Box::new(
             Sphere::new(
                 0.5,
                 Vec3::new(-1.0, 0.0, -1.0),
-                Box::new(Metal::new(0.8, 0.8, 0.8)),
+                Box::new(Metal::new(Vec3::new(0.8, 0.8, 0.8), 0.3)),
             )
         ),
     ]);
