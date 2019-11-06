@@ -17,7 +17,6 @@ pub struct Camera {
     horizontal: Vec3,
     vertical: Vec3,
     origin: Vec3,
-    w: Vec3,
     u: Vec3,
     v: Vec3,
     lens_radius: f32,
@@ -38,7 +37,6 @@ impl Camera {
             vertical: 2.0 * focus_dist * half_height * v,
             origin: lookfrom,
             lens_radius,
-            w,
             u,
             v,
         }
@@ -62,7 +60,6 @@ impl Default for Camera {
             horizontal: Vec3::new(4.0, 0.0, 0.0),
             vertical: Vec3::new(0.0, 2.0, 0.0),
             origin: Vec3::new(0.0, 0.0, 0.0),
-            w: Vec3::new(0.0, 0.0, 0.0),
             u: Vec3::new(0.0, 0.0, 0.0),
             v: Vec3::new(0.0, 0.0, 0.0),
         }
