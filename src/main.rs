@@ -12,6 +12,7 @@ use physics::{Ray, Hitable, Camera};
 use hitables::{Sphere, HitableList};
 use materials::{Metal, Lambertian};
 use rand::prelude::*;
+use crate::materials::Dielectric;
 
 
 fn random_in_unit_sphere() -> Vec3 {
@@ -62,7 +63,7 @@ fn main() -> std::io::Result<()> {
             Sphere::new(
                 0.5,
                 Vec3::new(0.0, 0.0, -1.0),
-                Box::new(Lambertian::new(0.8, 0.3, 0.3))
+                Box::new(Lambertian::new(0.1, 0.2, 0.5))
             ),
         ),
         Box::new(
@@ -76,14 +77,14 @@ fn main() -> std::io::Result<()> {
             Sphere::new(
                 0.5,
                 Vec3::new(1.0, 0.0, -1.0),
-                Box::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 1.0))
+                Box::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.0))
             ),
         ),
         Box::new(
             Sphere::new(
                 0.5,
                 Vec3::new(-1.0, 0.0, -1.0),
-                Box::new(Metal::new(Vec3::new(0.8, 0.8, 0.8), 0.3)),
+                Box::new(Dielectric::new(1.5)),
             )
         ),
     ]);

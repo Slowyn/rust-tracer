@@ -64,6 +64,13 @@ impl std::ops::Sub for Vec3 {
     }
 }
 
+impl std::ops::Neg for Vec3 {
+    type Output = Self;
+    fn neg(self) -> Self {
+        Vec3::new(-self.0, -self.1, -self.2)
+    }
+}
+
 impl std::ops::Mul for Vec3 {
     type Output = Self;
     fn mul(self, rhs: Vec3) -> Self {
