@@ -56,12 +56,19 @@ fn main() -> std::io::Result<()> {
     let mut content = String::with_capacity(capacity);
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
 
+
+    let lookfrom = Vec3::new(3.0, 3.0, 2.0);
+    let lookat = Vec3::new(0.0, 0.0, -1.0);
+    let focus_dist = (lookfrom - lookat).length();
+    let aperture: f32 = 2.0;
     let camera = Camera::new(
-        Vec3::new(-2.0, 2.0, 1.0),
-        Vec3::new(0.0, 0.0, -1.0),
+        lookfrom,
+        lookat,
         Vec3::new(0.0, 1.0, 0.0),
         20.0,
         nx as f32 / ny as f32,
+        aperture,
+        focus_dist,
     );
 
     let world: HitableList = HitableList::new(vec![
