@@ -13,6 +13,7 @@ use hitables::{Sphere, HitableList};
 use materials::{Metal, Lambertian};
 use rand::prelude::*;
 use crate::materials::Dielectric;
+use crate::hitables::MovingSphere;
 
 
 fn random_in_unit_sphere() -> Vec3 {
@@ -64,14 +65,17 @@ fn get_random_scene() -> HitableList {
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
                 if choose_mat < 0.8 { // Diffuse
                     entities.push(Box::new(
-                        Sphere::new(
+                        MovingSphere::new(
                             0.2,
                             center,
+                            center + Vec3::new(0.0, 0.5 * rng.gen::<f32>(), 0.0),
                             Box::new(Lambertian::new(
                                 rng.gen::<f32>() * rng.gen::<f32>(),
                                 rng.gen::<f32>() * rng.gen::<f32>(),
                                 rng.gen::<f32>() * rng.gen::<f32>(),
-                            ))
+                            )),
+                            0.0,
+                            1.0,
                         ),
                     ));
                 } else if choose_mat < 0.95 { // Metal
@@ -151,6 +155,8 @@ fn main() -> std::io::Result<()> {
         nx as f32 / ny as f32,
         aperture,
         focus_dist,
+        0.0,
+        1.0,
     );
 
     let world = get_random_scene();

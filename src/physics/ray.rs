@@ -3,13 +3,15 @@ use crate::math::{Vec3, dot};
 pub struct Ray {
     pub origin: Vec3,
     pub direction: Vec3,
+    pub time: f32,
 }
 
 impl Ray {
-    pub fn new(origin: Vec3, direction: Vec3) -> Ray {
+    pub fn new(origin: Vec3, direction: Vec3, time: f32) -> Ray {
         Ray {
             origin,
             direction,
+            time,
         }
     }
 
@@ -23,6 +25,7 @@ impl Default for Ray {
         Ray::new(
             Vec3::new(0.0, 0.0, 0.0),
             Vec3::new(0.0, 0.0, 0.0),
+            0.0,
         )
     }
 }

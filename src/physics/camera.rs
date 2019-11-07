@@ -20,10 +20,22 @@ pub struct Camera {
     u: Vec3,
     v: Vec3,
     lens_radius: f32,
+    time0: f32,
+    time1: f32,
 }
 
 impl Camera {
-    pub fn new(lookfrom: Vec3, lookat: Vec3, vup: Vec3, vfov: f32, aspect: f32, aperture: f32, focus_dist: f32) -> Self {
+    pub fn new(
+        lookfrom: Vec3,
+        lookat: Vec3,
+        vup: Vec3,
+        vfov: f32,
+        aspect: f32,
+        aperture: f32,
+        focus_dist: f32,
+        t0: f32,
+        t1: f32,
+    ) -> Self {
         let lens_radius = aperture / 2.0;
         let theta = vfov * std::f32::consts::PI / 180.0;
         let half_height = (theta / 2.0).tan();
@@ -39,15 +51,20 @@ impl Camera {
             lens_radius,
             u,
             v,
+            time0: t0,
+            time1: t1,
         }
     }
 
     pub fn get_ray(&self, s: f32, t: f32) -> Ray {
+        let mut rng = rand::thread_rng();
         let rd = self.lens_radius * random_in_unit_disk();
         let offset = self.u * rd.x() + self.v * rd.y();
+        let time = self.time0 + rng.gen::<f32>() * (self.time1 - self.time0);
         Ray::new(
             self.origin + offset,
             self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
+            time,
         )
     }
 }
@@ -62,6 +79,8 @@ impl Default for Camera {
             origin: Vec3::new(0.0, 0.0, 0.0),
             u: Vec3::new(0.0, 0.0, 0.0),
             v: Vec3::new(0.0, 0.0, 0.0),
+            time0: 0.0,
+            time1: 0.0,
         }
     }
 }

@@ -20,7 +20,6 @@ impl Material for Dielectric {
         let outward_normal: Vec3;
         let ni_over_nt: f32;
         let reflected = reflect(&r.direction, &record.normal);
-        let reflect_prob: f32;
         let cosine: f32;
         *attenuation = Vec3::new(1.0, 1.0, 1.0);
 
@@ -36,16 +35,16 @@ impl Material for Dielectric {
 
         let refracted = refract(&r.direction, &outward_normal, ni_over_nt);
 
-        match refracted {
-            Some(_refracted) => reflect_prob = schlick(cosine, self.ref_idx),
-            None => reflect_prob = 1.0,
-        }
+        let reflect_prob = match refracted {
+            Some(_refracted) => schlick(cosine, self.ref_idx),
+            None => 1.0,
+        };
 
         let chance: f32 = rng.gen();
         if chance < reflect_prob {
-            *scattered = Ray::new(record.p, reflected);
+            *scattered = Ray::new(record.p, reflected, r.time);
         } else {
-            *scattered = Ray::new(record.p, refracted.unwrap());
+            *scattered = Ray::new(record.p, refracted.unwrap(), r.time);
         }
         true
     }
