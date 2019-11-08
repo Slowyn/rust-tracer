@@ -2,6 +2,7 @@ mod hitable;
 mod ray;
 mod camera;
 mod material;
+mod aabb;
 
 
 pub use self::{
@@ -9,4 +10,5 @@ pub use self::{
     ray::*,
     camera::*,
     material::*,
+    aabb::*,
 };

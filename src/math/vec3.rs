@@ -154,3 +154,16 @@ impl std::ops::DivAssign<f32> for Vec3 {
         self.2 *= k;
     }
 }
+
+impl std::ops::Index<usize> for Vec3 {
+    type Output = f32;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.0,
+            1 => &self.1,
+            2 => &self.2,
+            _ => panic!("Vec3: Out of bounds"),
+        }
+    }
+}

@@ -1,4 +1,4 @@
-use crate::physics::{Hitable, HitRecord, Ray, Material};
+use crate::physics::{Hitable, HitRecord, Ray, Material, AABB};
 use crate::math::{Vec3, dot};
 
 pub struct Sphere {
@@ -54,6 +54,13 @@ impl Hitable for Sphere {
                 );
             }
         }
-        return None;
+        None
+    }
+
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
+        Some(AABB::new(
+            self.center - Vec3::new(self.r, self.r, self.r),
+            self.center + Vec3::new(self.r, self.r, self.r),
+        ))
     }
 }

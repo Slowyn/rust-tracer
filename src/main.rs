@@ -9,11 +9,9 @@ use std::fs::File;
 use std::io::Write;
 use math::{Vec3};
 use physics::{Ray, Hitable, Camera};
-use hitables::{Sphere, HitableList};
-use materials::{Metal, Lambertian};
+use hitables::{Sphere, HitableList, MovingSphere};
+use materials::{Metal, Lambertian, Dielectric};
 use rand::prelude::*;
-use crate::materials::Dielectric;
-use crate::hitables::MovingSphere;
 
 
 fn random_in_unit_sphere() -> Vec3 {
@@ -47,13 +45,11 @@ fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
 fn get_random_scene() -> HitableList {
     let mut rng = rand::thread_rng();
     let n = 500;
-    let mut entities: Vec<Box<dyn Hitable>> = Vec::with_capacity(n);
-    entities.push(Box::new(
-        Sphere::new(
-            1000.0,
-            Vec3::new(0.0, -1000.0, 0.0),
-            Box::new(Lambertian::new(0.5, 0.5, 0.5))
-        ),
+    let mut scene = HitableList::new(Vec::with_capacity(n));
+    scene.push(Sphere::new(
+        1000.0,
+        Vec3::new(0.0, -1000.0, 0.0),
+        Box::new(Lambertian::new(0.5, 0.5, 0.5))
     ));
     for a in -11..11 {
         for b in -11..11 {
@@ -64,72 +60,59 @@ fn get_random_scene() -> HitableList {
 
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
                 if choose_mat < 0.8 { // Diffuse
-                    entities.push(Box::new(
-                        MovingSphere::new(
-                            0.2,
-                            center,
-                            center + Vec3::new(0.0, 0.5 * rng.gen::<f32>(), 0.0),
-                            Box::new(Lambertian::new(
-                                rng.gen::<f32>() * rng.gen::<f32>(),
-                                rng.gen::<f32>() * rng.gen::<f32>(),
-                                rng.gen::<f32>() * rng.gen::<f32>(),
-                            )),
-                            0.0,
-                            1.0,
-                        ),
+                    scene.push(MovingSphere::new(
+                        0.2,
+                        center,
+                        center + Vec3::new(0.0, 0.5 * rng.gen::<f32>(), 0.0),
+                        Box::new(Lambertian::new(
+                            rng.gen::<f32>() * rng.gen::<f32>(),
+                            rng.gen::<f32>() * rng.gen::<f32>(),
+                            rng.gen::<f32>() * rng.gen::<f32>(),
+                        )),
+                        0.0,
+                        1.0,
                     ));
                 } else if choose_mat < 0.95 { // Metal
-                    entities.push(Box::new(
-                        Sphere::new(
-                            0.2,
-                            center,
-                            Box::new(
-                                Metal::new(
-                                    Vec3::new(
-                                        0.5 * (1.0 + rng.gen::<f32>()),
-                                        0.5 * (1.0 + rng.gen::<f32>()),
-                                        0.5 * (1.0 + rng.gen::<f32>())
-                                    ),
-                                    0.5 * rng.gen::<f32>()
-                                )
+                    scene.push(Sphere::new(
+                        0.2,
+                        center,
+                        Box::new(
+                            Metal::new(
+                                Vec3::new(
+                                    0.5 * (1.0 + rng.gen::<f32>()),
+                                    0.5 * (1.0 + rng.gen::<f32>()),
+                                    0.5 * (1.0 + rng.gen::<f32>())
+                                ),
+                                0.5 * rng.gen::<f32>()
                             )
-                        ),
+                        )
                     ));
                 } else { // Glass
-                    entities.push(Box::new(
-                        Sphere::new(
-                            0.2,
-                            center,
-                            Box::new(Dielectric::new(1.5))
-                        ),
+                    scene.push(Sphere::new(
+                        0.2,
+                        center,
+                        Box::new(Dielectric::new(1.5))
                     ));
                 }
             }
         }
     }
-    entities.push(Box::new(
-        Sphere::new(
-            1.0,
-            Vec3::new(0.0, 1.0, 0.0),
-            Box::new(Dielectric::new(1.5)),
-        ),
+    scene.push(Sphere::new(
+        1.0,
+        Vec3::new(0.0, 1.0, 0.0),
+        Box::new(Dielectric::new(1.5)),
     ));
-    entities.push(Box::new(
-        Sphere::new(
-            1.0,
-            Vec3::new(-4.0, 1.0, 0.0),
-            Box::new(Lambertian::new(0.4, 0.2, 0.1)),
-        ),
+    scene.push(Sphere::new(
+        1.0,
+        Vec3::new(-4.0, 1.0, 0.0),
+        Box::new(Lambertian::new(0.4, 0.2, 0.1)),
     ));
-    entities.push(Box::new(
-        Sphere::new(
-            1.0,
-            Vec3::new(4.0, 1.0, 0.0),
-            Box::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)),
-        ),
+    scene.push(Sphere::new(
+        1.0,
+        Vec3::new(4.0, 1.0, 0.0),
+        Box::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)),
     ));
-    HitableList::new(entities)
-
+    scene
 }
 
 
@@ -137,7 +120,7 @@ fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
     let nx: i32 = 200;
     let ny: i32 = 100;
-    let ns: i32 = 100;
+    let ns: i32 = 5;
     let capacity = (nx * ny) as usize;
     let mut content = String::with_capacity(capacity);
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
