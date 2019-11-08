@@ -1,14 +1,7 @@
-mod hitable;
-mod ray;
-mod camera;
-mod material;
 mod aabb;
+mod camera;
+mod hitable;
+mod material;
+mod ray;
 
-
-pub use self::{
-    hitable::*,
-    ray::*,
-    camera::*,
-    material::*,
-    aabb::*,
-};
+pub use self::{aabb::*, camera::*, hitable::*, material::*, ray::*};

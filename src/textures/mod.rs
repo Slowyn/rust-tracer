@@ -1,7 +1,5 @@
-mod texture;
+mod checker_texture;
 mod constant_texture;
+mod texture;
 
-use self::{
-    texture::*,
-    constant_texture::*,
-};
+pub use self::{checker_texture::*, constant_texture::*, texture::*};

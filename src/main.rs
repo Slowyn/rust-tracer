@@ -1,18 +1,19 @@
-mod math;
-mod physics;
 mod hitables;
 mod materials;
+mod math;
+mod physics;
+mod textures;
 
 extern crate rand;
 
+use crate::textures::{CheckerTexture, ConstantTexture};
+use hitables::{HitableList, MovingSphere, Sphere};
+use materials::{Dielectric, Lambertian, Metal};
+use math::Vec3;
+use physics::{Camera, Hitable, Ray};
+use rand::prelude::*;
 use std::fs::File;
 use std::io::Write;
-use math::{Vec3};
-use physics::{Ray, Hitable, Camera};
-use hitables::{Sphere, HitableList, MovingSphere};
-use materials::{Metal, Lambertian, Dielectric};
-use rand::prelude::*;
-
 
 fn random_in_unit_sphere() -> Vec3 {
     let mut rng = rand::thread_rng();
@@ -28,12 +29,16 @@ fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
         Some(rec) => {
             let mut scattered = Ray::default();
             let mut attenuation = Vec3::default();
-            if depth < 50 && rec.material.scatter(r, &rec, &mut attenuation, &mut scattered) {
+            if depth < 50
+                && rec
+                    .material
+                    .scatter(r, &rec, &mut attenuation, &mut scattered)
+            {
                 attenuation * color(&scattered, &world, depth + 1)
             } else {
                 Vec3::new(0.0, 0.0, 0.0)
             }
-        },
+        }
         None => {
             let unit_direction = r.direction.unit_vector();
             let t = 0.5 * (unit_direction.y() + 1.0);
@@ -46,53 +51,60 @@ fn get_random_scene() -> HitableList {
     let mut rng = rand::thread_rng();
     let n = 500;
     let mut scene = HitableList::new(Vec::with_capacity(n));
+
+    let checker = CheckerTexture::new(
+        ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
+        ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9)),
+    );
+
     scene.push(Sphere::new(
         1000.0,
         Vec3::new(0.0, -1000.0, 0.0),
-        Box::new(Lambertian::new(0.5, 0.5, 0.5))
+        Box::new(Lambertian::new(checker)),
     ));
     for a in -11..11 {
         for b in -11..11 {
             let af = a as f32;
             let bf = b as f32;
             let choose_mat: f32 = rng.gen();
-            let center = Vec3::new(af + 0.9 + rng.gen::<f32>(), 0.2, bf + 0.9 * rng.gen::<f32>());
+            let center = Vec3::new(
+                af + 0.9 + rng.gen::<f32>(),
+                0.2,
+                bf + 0.9 * rng.gen::<f32>(),
+            );
 
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                if choose_mat < 0.8 { // Diffuse
+                if choose_mat < 0.8 {
+                    // Diffuse
                     scene.push(MovingSphere::new(
                         0.2,
                         center,
                         center + Vec3::new(0.0, 0.5 * rng.gen::<f32>(), 0.0),
-                        Box::new(Lambertian::new(
+                        Box::new(Lambertian::new(ConstantTexture::new(Vec3::new(
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
-                        )),
+                        )))),
                         0.0,
                         1.0,
                     ));
-                } else if choose_mat < 0.95 { // Metal
+                } else if choose_mat < 0.95 {
+                    // Metal
                     scene.push(Sphere::new(
                         0.2,
                         center,
-                        Box::new(
-                            Metal::new(
-                                Vec3::new(
-                                    0.5 * (1.0 + rng.gen::<f32>()),
-                                    0.5 * (1.0 + rng.gen::<f32>()),
-                                    0.5 * (1.0 + rng.gen::<f32>())
-                                ),
-                                0.5 * rng.gen::<f32>()
-                            )
-                        )
+                        Box::new(Metal::new(
+                            Vec3::new(
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                            ),
+                            0.5 * rng.gen::<f32>(),
+                        )),
                     ));
-                } else { // Glass
-                    scene.push(Sphere::new(
-                        0.2,
-                        center,
-                        Box::new(Dielectric::new(1.5))
-                    ));
+                } else {
+                    // Glass
+                    scene.push(Sphere::new(0.2, center, Box::new(Dielectric::new(1.5))));
                 }
             }
         }
@@ -105,7 +117,9 @@ fn get_random_scene() -> HitableList {
     scene.push(Sphere::new(
         1.0,
         Vec3::new(-4.0, 1.0, 0.0),
-        Box::new(Lambertian::new(0.4, 0.2, 0.1)),
+        Box::new(Lambertian::new(ConstantTexture::new(Vec3::new(
+            0.4, 0.2, 0.1,
+        )))),
     ));
     scene.push(Sphere::new(
         1.0,
@@ -115,7 +129,6 @@ fn get_random_scene() -> HitableList {
     scene
 }
 
-
 fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
     let nx: i32 = 200;
@@ -124,7 +137,6 @@ fn main() -> std::io::Result<()> {
     let capacity = (nx * ny) as usize;
     let mut content = String::with_capacity(capacity);
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
-
 
     let lookfrom = Vec3::new(13.0, 2.0, 3.0);
     let lookat = Vec3::new(0.0, 0.0, 0.0);

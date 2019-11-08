@@ -1,5 +1,5 @@
-use crate::math::{Vec3};
-use crate::physics::ray::{Ray};
+use crate::math::Vec3;
+use crate::physics::ray::Ray;
 use crate::physics::{Material, AABB};
 
 #[derive(Copy, Clone)]
@@ -12,7 +12,12 @@ pub struct HitRecord<'a> {
 
 impl<'a> HitRecord<'a> {
     pub fn new(t: f32, p: Vec3, normal: Vec3, material: &'a dyn Material) -> Self {
-        HitRecord { t, p, normal, material }
+        HitRecord {
+            t,
+            p,
+            normal,
+            material,
+        }
     }
 }
 
@@ -26,4 +31,3 @@ impl Clone for Box<dyn Hitable> {
         self.clone()
     }
 }
-

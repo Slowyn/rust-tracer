@@ -6,15 +6,13 @@ pub struct ConstantTexture {
 }
 
 impl ConstantTexture {
-    pub fn new(r: f32, g: f32, b: f32) -> Self {
-        ConstantTexture {
-            color: Vec3(r, g, b),
-        }
+    pub fn new(color: Vec3) -> Self {
+        ConstantTexture { color }
     }
 }
 
 impl Texture for ConstantTexture {
-    fn texture(&self, u: f32, v: f32, r: &Vec3) -> Vec3 {
+    fn texture(&self, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
         self.color
     }
 }

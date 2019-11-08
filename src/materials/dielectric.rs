@@ -1,5 +1,5 @@
-use crate::physics::{Material, HitRecord, Ray, refract, reflect, schlick};
-use crate::math::{Vec3, dot};
+use crate::math::{dot, Vec3};
+use crate::physics::{reflect, refract, schlick, HitRecord, Material, Ray};
 use crate::rand::prelude::*;
 
 pub struct Dielectric {
@@ -8,14 +8,18 @@ pub struct Dielectric {
 
 impl Dielectric {
     pub fn new(ref_idx: f32) -> Self {
-        Dielectric {
-            ref_idx,
-        }
+        Dielectric { ref_idx }
     }
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, r: &Ray, record: &HitRecord, attenuation: &mut Vec3, scattered: &mut Ray) -> bool {
+    fn scatter(
+        &self,
+        r: &Ray,
+        record: &HitRecord,
+        attenuation: &mut Vec3,
+        scattered: &mut Ray,
+    ) -> bool {
         let mut rng = rand::thread_rng();
         let outward_normal: Vec3;
         let ni_over_nt: f32;

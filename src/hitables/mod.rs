@@ -1,11 +1,6 @@
-mod sphere;
+mod bvh;
 mod hitable_list;
 mod moving_sphere;
-mod bvh;
+mod sphere;
 
-pub use self::{
-    sphere::*,
-    hitable_list::*,
-    moving_sphere::*,
-    bvh::*,
-};
+pub use self::{bvh::*, hitable_list::*, moving_sphere::*, sphere::*};

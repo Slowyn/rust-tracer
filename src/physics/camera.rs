@@ -1,5 +1,5 @@
-use crate::math::{Vec3, dot};
-use crate::physics::{Ray};
+use crate::math::{dot, Vec3};
+use crate::physics::Ray;
 use crate::rand::prelude::*;
 
 fn random_in_unit_disk() -> Vec3 {
@@ -10,7 +10,6 @@ fn random_in_unit_disk() -> Vec3 {
     }
     p
 }
-
 
 pub struct Camera {
     lower_left_corner: Vec3,
@@ -44,7 +43,10 @@ impl Camera {
         let u = vup.cross(w).unit_vector();
         let v = w.cross(u);
         Camera {
-            lower_left_corner: lookfrom - focus_dist * half_width * u - focus_dist * half_height * v - focus_dist * w,
+            lower_left_corner: lookfrom
+                - focus_dist * half_width * u
+                - focus_dist * half_height * v
+                - focus_dist * w,
             horizontal: 2.0 * focus_dist * half_width * u,
             vertical: 2.0 * focus_dist * half_height * v,
             origin: lookfrom,

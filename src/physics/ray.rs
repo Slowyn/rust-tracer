@@ -1,4 +1,4 @@
-use crate::math::{Vec3, dot};
+use crate::math::{dot, Vec3};
 
 pub struct Ray {
     pub origin: Vec3,
@@ -22,11 +22,7 @@ impl Ray {
 
 impl Default for Ray {
     fn default() -> Self {
-        Ray::new(
-            Vec3::new(0.0, 0.0, 0.0),
-            Vec3::new(0.0, 0.0, 0.0),
-            0.0,
-        )
+        Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 0.0), 0.0)
     }
 }
 

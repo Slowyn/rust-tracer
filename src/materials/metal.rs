@@ -1,5 +1,5 @@
-use crate::physics::{Material, Ray, HitRecord, reflect};
-use crate::math::{Vec3, dot};
+use crate::math::{dot, Vec3};
+use crate::physics::{reflect, HitRecord, Material, Ray};
 use crate::random_in_unit_sphere;
 
 pub struct Metal {
@@ -8,7 +8,6 @@ pub struct Metal {
 }
 
 impl Metal {
-
     pub fn new(albedo: Vec3, fuzz: f32) -> Self {
         Metal {
             albedo,
@@ -18,9 +17,19 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Vec3, scattered: &mut Ray) -> bool {
+    fn scatter(
+        &self,
+        r_in: &Ray,
+        rec: &HitRecord,
+        attenuation: &mut Vec3,
+        scattered: &mut Ray,
+    ) -> bool {
         let reflected = reflect(&r_in.direction.unit_vector(), &rec.normal);
-        *scattered = Ray::new(rec.p, reflected + self.fuzz * random_in_unit_sphere(), r_in.time);
+        *scattered = Ray::new(
+            rec.p,
+            reflected + self.fuzz * random_in_unit_sphere(),
+            r_in.time,
+        );
         *attenuation = self.albedo;
         dot(&scattered.direction, &rec.normal) > 0.0
     }

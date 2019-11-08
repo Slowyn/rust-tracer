@@ -1,4 +1,4 @@
-use crate::physics::{Hitable, HitRecord, Ray, AABB, surrounding_box};
+use crate::physics::{surrounding_box, HitRecord, Hitable, Ray, AABB};
 
 pub struct HitableList {
     pub entities: Vec<Box<dyn Hitable>>,
@@ -6,9 +6,7 @@ pub struct HitableList {
 
 impl HitableList {
     pub fn new(entities: Vec<Box<dyn Hitable>>) -> Self {
-        HitableList {
-            entities,
-        }
+        HitableList { entities }
     }
 
     pub fn push<S: Hitable + 'static>(&mut self, entity: S) -> &mut Self {
@@ -37,13 +35,11 @@ impl Hitable for HitableList {
         }
         for entity in self.entities.iter() {
             match entity.bounding_box(t0, t1) {
-                Some(aabb) => {
-                    match r_box.as_mut() {
-                        Some(v) => *v = surrounding_box(*v, aabb),
-                        None => r_box = Some(aabb),
-                    }
+                Some(aabb) => match r_box.as_mut() {
+                    Some(v) => *v = surrounding_box(*v, aabb),
+                    None => r_box = Some(aabb),
                 },
-                None => return None
+                None => return None,
             };
         }
         r_box

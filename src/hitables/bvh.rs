@@ -1,8 +1,8 @@
-use crate::physics::{Hitable, Ray, HitRecord, AABB, surrounding_box};
 use crate::hitables::HitableList;
+use crate::physics::{surrounding_box, HitRecord, Hitable, Ray, AABB};
 use crate::rand::prelude::*;
 use std::cmp::Ordering;
-use std::cmp::Ordering::{*};
+use std::cmp::Ordering::*;
 
 // Bounding Volume Hierarchy
 pub struct BVHNode {
@@ -10,7 +10,6 @@ pub struct BVHNode {
     pub left: Box<dyn Hitable>,
     pub right: Box<dyn Hitable>,
 }
-
 
 impl BVHNode {
     pub fn new(h_list: HitableList, t0: f32, t1: f32) -> BVHNode {
@@ -38,7 +37,13 @@ impl BVHNode {
         } else {
             let h_list2_entities = h_list.entities.split_off(h_list.entities.len() / 2);
             left = Box::new(BVHNode::new(h_list, t0, t1));
-            right = Box::new(BVHNode::new(HitableList { entities: h_list2_entities }, t0, t1));
+            right = Box::new(BVHNode::new(
+                HitableList {
+                    entities: h_list2_entities,
+                },
+                t0,
+                t1,
+            ));
         }
 
         let (box_left_o, box_right_o) = (left.bounding_box(t0, t1), right.bounding_box(t0, t1));
@@ -49,7 +54,7 @@ impl BVHNode {
         BVHNode {
             left,
             right,
-            b_box: surrounding_box(box_left_o.unwrap(), box_right_o.unwrap())
+            b_box: surrounding_box(box_left_o.unwrap(), box_right_o.unwrap()),
         }
     }
 }
@@ -61,12 +66,16 @@ impl Hitable for BVHNode {
                 let hit_left = self.left.hit(r, min, max);
                 let hit_right = self.right.hit(r, min, max);
                 match (hit_left, hit_right) {
-                    (Some(left_rec), Some(right_rec)) => Some(if left_rec.t < right_rec.t { left_rec } else { right_rec }),
+                    (Some(left_rec), Some(right_rec)) => Some(if left_rec.t < right_rec.t {
+                        left_rec
+                    } else {
+                        right_rec
+                    }),
                     (Some(left_rec), None) => Some(left_rec),
                     (None, Some(right_rec)) => Some(right_rec),
-                    _ => None
+                    _ => None,
                 }
-            },
+            }
             None => None,
         }
     }
@@ -77,7 +86,7 @@ impl Hitable for BVHNode {
 }
 
 fn box_x_compare(a: &Box<dyn Hitable>, b: &Box<dyn Hitable>) -> Ordering {
-    let (box_left, box_right) = (a.bounding_box(0.0, 0.0 ), b.bounding_box(0.0, 0.0));
+    let (box_left, box_right) = (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0));
     if box_left.is_none() || box_right.is_none() {
         panic!("No bounding box");
     }
@@ -89,9 +98,8 @@ fn box_x_compare(a: &Box<dyn Hitable>, b: &Box<dyn Hitable>) -> Ordering {
     }
 }
 
-
 fn box_y_compare(a: &Box<dyn Hitable>, b: &Box<dyn Hitable>) -> Ordering {
-    let (box_left, box_right) = (a.bounding_box(0.0, 0.0 ), b.bounding_box(0.0, 0.0));
+    let (box_left, box_right) = (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0));
     if box_left.is_none() || box_right.is_none() {
         panic!("No bounding box");
     }
@@ -103,9 +111,8 @@ fn box_y_compare(a: &Box<dyn Hitable>, b: &Box<dyn Hitable>) -> Ordering {
     }
 }
 
-
 fn box_z_compare(a: &Box<dyn Hitable>, b: &Box<dyn Hitable>) -> Ordering {
-    let (box_left, box_right) = (a.bounding_box(0.0, 0.0 ), b.bounding_box(0.0, 0.0));
+    let (box_left, box_right) = (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0));
     if box_left.is_none() || box_right.is_none() {
         panic!("No bounding box");
     }

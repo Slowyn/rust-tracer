@@ -1,10 +1,5 @@
+mod dielectric;
 mod lambertian;
 mod metal;
-mod dielectric;
 
-
-pub use self::{
-    lambertian::*,
-    metal::*,
-    dielectric::*,
-};
+pub use self::{dielectric::*, lambertian::*, metal::*};

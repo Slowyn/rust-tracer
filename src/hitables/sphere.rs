@@ -1,5 +1,5 @@
-use crate::physics::{Hitable, HitRecord, Ray, Material, AABB};
-use crate::math::{Vec3, dot};
+use crate::math::{dot, Vec3};
+use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
 
 pub struct Sphere {
     pub r: f32,
@@ -31,27 +31,13 @@ impl Hitable for Sphere {
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
-                return Some(
-                    HitRecord::new(
-                        temp,
-                        p,
-                        normal,
-                        &*self.material,
-                    )
-                );
+                return Some(HitRecord::new(temp, p, normal, &*self.material));
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
-                return Some(
-                    HitRecord::new(
-                        temp,
-                        p,
-                        normal,
-                        &*self.material,
-                    )
-                );
+                return Some(HitRecord::new(temp, p, normal, &*self.material));
             }
         }
         None

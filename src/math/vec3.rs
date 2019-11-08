@@ -6,19 +6,31 @@ pub fn dot(vec1: &Vec3, vec2: &Vec3) -> f32 {
 }
 
 impl Vec3 {
-    pub fn default() -> Self  {
+    pub fn default() -> Self {
         Vec3(0.0, 0.0, 0.0)
     }
     pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3(x, y, z)
     }
-    pub fn x(&self) -> f32 { self.0 }
-    pub fn y(&self) -> f32 { self.1 }
-    pub fn z(&self) -> f32 { self.2 }
+    pub fn x(&self) -> f32 {
+        self.0
+    }
+    pub fn y(&self) -> f32 {
+        self.1
+    }
+    pub fn z(&self) -> f32 {
+        self.2
+    }
 
-    pub fn r(&self) -> f32 { self.0 }
-    pub fn g(&self) -> f32 { self.1 }
-    pub fn b(&self) -> f32 { self.2 }
+    pub fn r(&self) -> f32 {
+        self.0
+    }
+    pub fn g(&self) -> f32 {
+        self.1
+    }
+    pub fn b(&self) -> f32 {
+        self.2
+    }
 
     pub fn length(&self) -> f32 {
         (self.0 * self.0 + self.1 * self.1 + self.2 * self.2).sqrt()
@@ -30,7 +42,9 @@ impl Vec3 {
 
     pub fn make_unit_vector(&mut self) {
         let k = 1.0 / self.length();
-        self.0 *= k; self.1 *= k; self.2 *= k;
+        self.0 *= k;
+        self.1 *= k;
+        self.2 *= k;
     }
 
     pub fn dot(&self, vec: Vec3) -> f32 {

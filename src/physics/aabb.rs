@@ -4,12 +4,20 @@ use std::mem::swap;
 
 #[inline]
 fn ffmin(a: f32, b: f32) -> f32 {
-    if a < b { a } else { b }
+    if a < b {
+        a
+    } else {
+        b
+    }
 }
 
 #[inline]
 fn ffmax(a: f32, b: f32) -> f32 {
-    if a > b { a } else { b }
+    if a > b {
+        a
+    } else {
+        b
+    }
 }
 
 // Axis Aligned Bounding Box
@@ -19,13 +27,9 @@ pub struct AABB {
     pub max: Vec3,
 }
 
-
 impl AABB {
     pub fn new(min: Vec3, max: Vec3) -> Self {
-        AABB {
-            min,
-            max,
-        }
+        AABB { min, max }
     }
 
     pub fn hit(&self, r: &Ray, tmin: f32, tmax: f32) -> Option<(f32, f32)> {
@@ -42,7 +46,7 @@ impl AABB {
             if inv_d < 0.0 {
                 swap(&mut t0, &mut t1);
             }
-            r_tmin = ffmax(t0 , tmin);
+            r_tmin = ffmax(t0, tmin);
             r_tmax = ffmin(t1, tmax);
             if r_tmax <= r_tmin {
                 return None;
