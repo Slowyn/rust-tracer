@@ -129,11 +129,34 @@ fn get_random_scene() -> HitableList {
     scene
 }
 
+fn two_spheres() -> HitableList {
+    let checker = CheckerTexture::new(
+        ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
+        ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9)),
+    );
+    let mut scene = HitableList::new(Vec::with_capacity(2));
+    scene.push(Sphere::new(
+        10.0,
+        Vec3::new(0.0, -10.0, 0.0),
+        Box::new(Lambertian::new(checker)),
+    ));
+    let checker = CheckerTexture::new(
+        ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
+        ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9)),
+    );
+    scene.push(Sphere::new(
+        10.0,
+        Vec3::new(0.0, 10.0, 0.0),
+        Box::new(Lambertian::new(checker)),
+    ));
+    scene
+}
+
 fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
-    let nx: i32 = 200;
-    let ny: i32 = 100;
-    let ns: i32 = 5;
+    let nx: i32 = 500;
+    let ny: i32 = 250;
+    let ns: i32 = 100;
     let capacity = (nx * ny) as usize;
     let mut content = String::with_capacity(capacity);
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
@@ -154,7 +177,7 @@ fn main() -> std::io::Result<()> {
         1.0,
     );
 
-    let world = get_random_scene();
+    let world = two_spheres();
 
     for j in (0..ny).rev() {
         for i in 0..nx {
