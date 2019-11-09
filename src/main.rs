@@ -6,7 +6,7 @@ mod textures;
 
 extern crate rand;
 
-use crate::textures::{CheckerTexture, ConstantTexture};
+use crate::textures::{CheckerTexture, ConstantTexture, NoiseTexture};
 use hitables::{HitableList, MovingSphere, Sphere};
 use materials::{Dielectric, Lambertian, Metal};
 use math::Vec3;
@@ -47,7 +47,7 @@ fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
     }
 }
 
-fn get_random_scene() -> HitableList {
+fn random_scene() -> HitableList {
     let mut rng = rand::thread_rng();
     let n = 500;
     let mut scene = HitableList::new(Vec::with_capacity(n));
@@ -152,6 +152,23 @@ fn two_spheres() -> HitableList {
     scene
 }
 
+fn two_perlin_spheres() -> HitableList {
+    let pertext = NoiseTexture::new(3.1);
+    let mut scene = HitableList::new(Vec::with_capacity(2));
+    scene.push(Sphere::new(
+        1000.0,
+        Vec3::new(0.0, -1000.0, 0.0),
+        Box::new(Lambertian::new(pertext)),
+    ));
+    let pertext = NoiseTexture::new(3.1);
+    scene.push(Sphere::new(
+        2.0,
+        Vec3::new(0.0, 2.0, 0.0),
+        Box::new(Lambertian::new(pertext)),
+    ));
+    scene
+}
+
 fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
     let nx: i32 = 500;
@@ -177,7 +194,7 @@ fn main() -> std::io::Result<()> {
         1.0,
     );
 
-    let world = two_spheres();
+    let world = two_perlin_spheres();
 
     for j in (0..ny).rev() {
         for i in 0..nx {
