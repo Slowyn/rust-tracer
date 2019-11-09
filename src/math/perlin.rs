@@ -1,4 +1,4 @@
-use crate::math::{Vec3, dot};
+use crate::math::{dot, Vec3};
 use crate::rand::prelude::*;
 
 #[inline]
