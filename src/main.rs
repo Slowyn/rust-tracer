@@ -220,7 +220,7 @@ fn simple_light() -> HittableList {
         3.0,
         -2.0,
         Box::new(DiffuseLight::new(ConstantTexture::new(Vec3::new(
-            1.0, 1.0, 1.0,
+            4.0, 4.0, 4.0,
         )))),
     ));
 
