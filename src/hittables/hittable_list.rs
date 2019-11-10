@@ -1,12 +1,13 @@
+use crate::math::Vec3;
 use crate::physics::{surrounding_box, HitRecord, Hitable, Ray, AABB};
 
-pub struct HitableList {
+pub struct HittableList {
     pub entities: Vec<Box<dyn Hitable>>,
 }
 
-impl HitableList {
+impl HittableList {
     pub fn new(entities: Vec<Box<dyn Hitable>>) -> Self {
-        HitableList { entities }
+        HittableList { entities }
     }
 
     pub fn push<S: Hitable + 'static>(&mut self, entity: S) -> &mut Self {
@@ -15,7 +16,7 @@ impl HitableList {
     }
 }
 
-impl Hitable for HitableList {
+impl Hitable for HittableList {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut tmp_rec: Option<HitRecord> = None;
         let mut closest_so_far = t_max;
@@ -43,5 +44,9 @@ impl Hitable for HitableList {
             };
         }
         r_box
+    }
+
+    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
+        (0.0, 0.0)
     }
 }

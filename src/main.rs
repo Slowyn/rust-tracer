@@ -1,19 +1,23 @@
-mod hitables;
+mod hittables;
 mod materials;
 mod math;
 mod physics;
 mod textures;
 
 extern crate rand;
+extern crate stb_image;
 
-use crate::textures::{CheckerTexture, ConstantTexture, NoiseTexture};
-use hitables::{HitableList, MovingSphere, Sphere};
+use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
+use hittables::{HittableList, MovingSphere, Sphere};
 use materials::{Dielectric, Lambertian, Metal};
 use math::Vec3;
 use physics::{Camera, Hitable, Ray};
 use rand::prelude::*;
+use stb_image::image;
+use stb_image::image::LoadResult;
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 
 fn random_in_unit_sphere() -> Vec3 {
     let mut rng = rand::thread_rng();
@@ -24,7 +28,7 @@ fn random_in_unit_sphere() -> Vec3 {
     p
 }
 
-fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
+fn color(r: &Ray, world: &HittableList, depth: i32) -> Vec3 {
     match world.hit(&r, 0.001, std::f32::MAX) {
         Some(rec) => {
             let mut scattered = Ray::default();
@@ -34,7 +38,7 @@ fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
                     .material
                     .scatter(r, &rec, &mut attenuation, &mut scattered)
             {
-                attenuation * color(&scattered, &world, depth + 1)
+                attenuation
             } else {
                 Vec3::new(0.0, 0.0, 0.0)
             }
@@ -47,10 +51,10 @@ fn color(r: &Ray, world: &HitableList, depth: i32) -> Vec3 {
     }
 }
 
-fn random_scene() -> HitableList {
+fn random_scene() -> HittableList {
     let mut rng = rand::thread_rng();
     let n = 500;
-    let mut scene = HitableList::new(Vec::with_capacity(n));
+    let mut scene = HittableList::new(Vec::with_capacity(n));
 
     let checker = CheckerTexture::new(
         ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
@@ -129,12 +133,12 @@ fn random_scene() -> HitableList {
     scene
 }
 
-fn two_spheres() -> HitableList {
+fn two_spheres() -> HittableList {
     let checker = CheckerTexture::new(
         ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
         ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9)),
     );
-    let mut scene = HitableList::new(Vec::with_capacity(2));
+    let mut scene = HittableList::new(Vec::with_capacity(2));
     scene.push(Sphere::new(
         10.0,
         Vec3::new(0.0, -10.0, 0.0),
@@ -152,9 +156,29 @@ fn two_spheres() -> HitableList {
     scene
 }
 
-fn two_perlin_spheres() -> HitableList {
+fn earth() -> HittableList {
+    let path = Path::new("./earthmap.jpg");
+    let load_result = image::load(path);
+    let image = match load_result {
+        LoadResult::ImageU8(image) => image,
+        _ => panic!("Image was not loaded!"),
+    };
+    let mut scene = HittableList::new(Vec::with_capacity(2));
+    scene.push(Sphere::new(
+        2.0,
+        Vec3::new(0.0, 0.0, 0.0),
+        Box::new(Lambertian::new(ImageTexture::new(
+            image.data,
+            image.width,
+            image.height,
+        ))),
+    ));
+    scene
+}
+
+fn two_perlin_spheres() -> HittableList {
     let pertext = NoiseTexture::new(3.1);
-    let mut scene = HitableList::new(Vec::with_capacity(2));
+    let mut scene = HittableList::new(Vec::with_capacity(2));
     scene.push(Sphere::new(
         1000.0,
         Vec3::new(0.0, -1000.0, 0.0),
@@ -194,7 +218,7 @@ fn main() -> std::io::Result<()> {
         1.0,
     );
 
-    let world = two_perlin_spheres();
+    let world = earth();
 
     for j in (0..ny).rev() {
         for i in 0..nx {

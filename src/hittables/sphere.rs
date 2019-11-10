@@ -1,5 +1,6 @@
 use crate::math::{dot, Vec3};
 use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
+use std::f32::consts::PI;
 
 pub struct Sphere {
     pub r: f32,
@@ -31,13 +32,25 @@ impl Hitable for Sphere {
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
-                return Some(HitRecord::new(temp, p, normal, &*self.material));
+                return Some(HitRecord::new(
+                    temp,
+                    p,
+                    normal,
+                    &*self.material,
+                    self.get_uv(&p),
+                ));
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
-                return Some(HitRecord::new(temp, p, normal, &*self.material));
+                return Some(HitRecord::new(
+                    temp,
+                    p,
+                    normal,
+                    &*self.material,
+                    self.get_uv(&p),
+                ));
             }
         }
         None
@@ -48,5 +61,14 @@ impl Hitable for Sphere {
             self.center - Vec3::new(self.r, self.r, self.r),
             self.center + Vec3::new(self.r, self.r, self.r),
         ))
+    }
+
+    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
+        let p = (*p - self.center) / self.r;
+        let phi = p.z().atan2(p.x());
+        let theta = p.y().asin();
+        let u = 1.0 - (phi + PI) / (2.0 * PI);
+        let v = (theta + PI / 2.0) / PI;
+        (u, v)
     }
 }

@@ -25,7 +25,8 @@ impl Material for Lambertian {
     ) -> bool {
         let target = rec.p + rec.normal + random_in_unit_sphere();
         *scattered = Ray::new(rec.p, target - rec.p, r_in.time);
-        *attenuation = self.albedo.texture(0.0, 0.0, &rec.p);
+        let (u, v) = rec.uv;
+        *attenuation = self.albedo.texture(u, v, &rec.p);
         true
     }
 }

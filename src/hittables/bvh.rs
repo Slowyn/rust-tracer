@@ -1,4 +1,5 @@
-use crate::hitables::HitableList;
+use crate::hittables::HittableList;
+use crate::math::Vec3;
 use crate::physics::{surrounding_box, HitRecord, Hitable, Ray, AABB};
 use crate::rand::prelude::*;
 use std::cmp::Ordering;
@@ -12,8 +13,8 @@ pub struct BVHNode {
 }
 
 impl BVHNode {
-    pub fn new(h_list: HitableList, t0: f32, t1: f32) -> BVHNode {
-        let mut h_list: HitableList = h_list;
+    pub fn new(h_list: HittableList, t0: f32, t1: f32) -> BVHNode {
+        let mut h_list: HittableList = h_list;
         let mut rng = rand::thread_rng();
         let axis = rng.gen_range(0, 3);
 
@@ -38,7 +39,7 @@ impl BVHNode {
             let h_list2_entities = h_list.entities.split_off(h_list.entities.len() / 2);
             left = Box::new(BVHNode::new(h_list, t0, t1));
             right = Box::new(BVHNode::new(
-                HitableList {
+                HittableList {
                     entities: h_list2_entities,
                 },
                 t0,
@@ -82,6 +83,10 @@ impl Hitable for BVHNode {
 
     fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(self.b_box)
+    }
+
+    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
+        (0.0, 0.0)
     }
 }
 
