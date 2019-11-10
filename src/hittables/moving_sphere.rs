@@ -49,25 +49,15 @@ impl Hitable for MovingSphere {
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
-                return Some(HitRecord::new(
-                    temp,
-                    p,
-                    normal,
-                    &*self.material,
-                    self.get_uv(&p),
-                ));
+                let (u, v) = self.get_uv(&p);
+                return Some(HitRecord::new(temp, p, normal, &*self.material, u, v));
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
-                return Some(HitRecord::new(
-                    temp,
-                    p,
-                    normal,
-                    &*self.material,
-                    self.get_uv(&p),
-                ));
+                let (u, v) = self.get_uv(&p);
+                return Some(HitRecord::new(temp, p, normal, &*self.material, u, v));
             }
         }
         None

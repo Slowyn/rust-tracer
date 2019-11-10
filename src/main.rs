@@ -7,6 +7,8 @@ mod textures;
 extern crate rand;
 extern crate stb_image;
 
+use crate::hittables::XYRect;
+use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 use hittables::{HittableList, MovingSphere, Sphere};
 use materials::{Dielectric, Lambertian, Metal};
@@ -33,21 +35,18 @@ fn color(r: &Ray, world: &HittableList, depth: i32) -> Vec3 {
         Some(rec) => {
             let mut scattered = Ray::default();
             let mut attenuation = Vec3::default();
+            let emitted = rec.material.emitted(rec.u, rec.v, &rec.p);
             if depth < 50
                 && rec
                     .material
                     .scatter(r, &rec, &mut attenuation, &mut scattered)
             {
-                attenuation
+                emitted + attenuation * color(&scattered, world, depth + 1)
             } else {
-                Vec3::new(0.0, 0.0, 0.0)
+                emitted
             }
         }
-        None => {
-            let unit_direction = r.direction.unit_vector();
-            let t = 0.5 * (unit_direction.y() + 1.0);
-            (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
-        }
+        None => Vec3::default(),
     }
 }
 
@@ -193,6 +192,41 @@ fn two_perlin_spheres() -> HittableList {
     scene
 }
 
+fn simple_light() -> HittableList {
+    let pertext = NoiseTexture::new(3.1);
+    let mut scene = HittableList::new(Vec::with_capacity(4));
+    scene.push(Sphere::new(
+        1000.0,
+        Vec3::new(0.0, -1000.0, 0.0),
+        Box::new(Lambertian::new(pertext)),
+    ));
+    let pertext = NoiseTexture::new(3.1);
+    scene.push(Sphere::new(
+        2.0,
+        Vec3::new(0.0, 2.0, 0.0),
+        Box::new(Lambertian::new(pertext)),
+    ));
+
+    scene.push(Sphere::new(
+        2.0,
+        Vec3::new(0.0, 2.0, 0.0),
+        Box::new(Lambertian::new(pertext)),
+    ));
+
+    scene.push(XYRect::new(
+        3.0,
+        5.0,
+        1.0,
+        3.0,
+        -2.0,
+        Box::new(DiffuseLight::new(ConstantTexture::new(Vec3::new(
+            1.0, 1.0, 1.0,
+        )))),
+    ));
+
+    scene
+}
+
 fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
     let nx: i32 = 500;
@@ -210,7 +244,7 @@ fn main() -> std::io::Result<()> {
         lookfrom,
         lookat,
         Vec3::new(0.0, 1.0, 0.0),
-        20.0,
+        45.0,
         nx as f32 / ny as f32,
         aperture,
         focus_dist,
@@ -218,7 +252,7 @@ fn main() -> std::io::Result<()> {
         1.0,
     );
 
-    let world = earth();
+    let world = simple_light();
 
     for j in (0..ny).rev() {
         for i in 0..nx {
@@ -236,9 +270,9 @@ fn main() -> std::io::Result<()> {
             col /= ns as f32;
             col = Vec3::new(col.x().sqrt(), col.y().sqrt(), col.z().sqrt());
 
-            let ir = (255.99 * col.r()) as i16;
-            let ig = (255.99 * col.g()) as i16;
-            let ib = (255.99 * col.b()) as i16;
+            let ir = (255.99 * col.r()) as i16 & 255;
+            let ig = (255.99 * col.g()) as i16 & 255;
+            let ib = (255.99 * col.b()) as i16 & 255;
             content.push_str(format!("{} {} {}\n", ir, ig, ib).as_str());
         }
     }
