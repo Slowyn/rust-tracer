@@ -7,7 +7,7 @@ mod textures;
 extern crate rand;
 extern crate stb_image;
 
-use crate::hittables::XYRect;
+use crate::hittables::{FlipNormal, XYRect, XZRect, YZRect};
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 use hittables::{HittableList, MovingSphere, Sphere};
@@ -213,6 +213,14 @@ fn simple_light() -> HittableList {
         Box::new(Lambertian::new(pertext)),
     ));
 
+    scene.push(Sphere::new(
+        2.0,
+        Vec3::new(0.0, 7.0, 0.0),
+        Box::new(DiffuseLight::new(ConstantTexture::new(Vec3::new(
+            4.0, 4.0, 4.0,
+        )))),
+    ));
+
     scene.push(XYRect::new(
         3.0,
         5.0,
@@ -227,24 +235,71 @@ fn simple_light() -> HittableList {
     scene
 }
 
+fn cornell_box() -> HittableList {
+    let mut scene = HittableList::new(Vec::with_capacity(5));
+    let red = Lambertian::new(ConstantTexture::new(Vec3::new(0.65, 0.05, 0.05)));
+    let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
+    let green = Lambertian::new(ConstantTexture::new(Vec3::new(0.12, 0.45, 0.15)));
+    let light = DiffuseLight::new(ConstantTexture::new(Vec3::new(15.0, 15.0, 15.0)));
+
+    scene.push(FlipNormal::new(YZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        Box::new(green),
+    )));
+    scene.push(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, Box::new(red)));
+    scene.push(XZRect::new(
+        213.0,
+        343.0,
+        227.0,
+        332.0,
+        554.0,
+        Box::new(light),
+    ));
+    scene.push(FlipNormal::new(XZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        Box::new(white),
+    )));
+    let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
+    scene.push(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, Box::new(white)));
+    let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
+    scene.push(FlipNormal::new(XYRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        Box::new(white),
+    )));
+
+    scene
+}
+
 fn main() -> std::io::Result<()> {
     let mut image = File::create("img.ppm")?;
     let nx: i32 = 500;
     let ny: i32 = 250;
-    let ns: i32 = 100;
+    let ns: i32 = 1000;
     let capacity = (nx * ny) as usize;
-    let mut content = String::with_capacity(capacity);
+    let mut content = String::new();
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
 
-    let lookfrom = Vec3::new(13.0, 2.0, 3.0);
-    let lookat = Vec3::new(0.0, 0.0, 0.0);
+    let lookfrom = Vec3::new(278.0, 278.0, -800.0);
+    let lookat = Vec3::new(278.0, 278.0, 0.0);
     let focus_dist = 10.0;
     let aperture: f32 = 0.0;
     let camera = Camera::new(
         lookfrom,
         lookat,
         Vec3::new(0.0, 1.0, 0.0),
-        45.0,
+        40.0,
         nx as f32 / ny as f32,
         aperture,
         focus_dist,
@@ -252,7 +307,7 @@ fn main() -> std::io::Result<()> {
         1.0,
     );
 
-    let world = simple_light();
+    let world = cornell_box();
 
     for j in (0..ny).rev() {
         for i in 0..nx {
@@ -270,9 +325,9 @@ fn main() -> std::io::Result<()> {
             col /= ns as f32;
             col = Vec3::new(col.x().sqrt(), col.y().sqrt(), col.z().sqrt());
 
-            let ir = (255.99 * col.r()) as i16 & 255;
-            let ig = (255.99 * col.g()) as i16 & 255;
-            let ib = (255.99 * col.b()) as i16 & 255;
+            let ir = (255.0 * col.r()) as u8;
+            let ig = (255.0 * col.g()) as u8;
+            let ib = (255.0 * col.b()) as u8;
             content.push_str(format!("{} {} {}\n", ir, ig, ib).as_str());
         }
     }
