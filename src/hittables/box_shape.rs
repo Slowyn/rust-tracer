@@ -26,7 +26,7 @@ impl<T: Material + Clone + 'static> BoxShape<T> {
             p1.x(),
             p0.y(),
             p1.y(),
-            p1.y(),
+            p0.z(),
             material.clone(),
         )));
         objects.push(XZRect::new(

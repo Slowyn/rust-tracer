@@ -31,7 +31,7 @@ impl<T: Material> Hitable for YZRect<T> {
         }
         let y = r.origin.y() + t * r.direction.y();
         let z = r.origin.z() + t * r.direction.z();
-        if z < self.z0 || z > self.z1 || y < self.y0 || z > self.y1 {
+        if y < self.y0 || y > self.y1 || z < self.z0 || z > self.z1 {
             return None;
         }
         Some(HitRecord::new(
