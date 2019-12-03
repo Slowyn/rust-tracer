@@ -332,9 +332,9 @@ fn main() -> std::io::Result<()> {
             col /= ns as f32;
             col = Vec3::new(col.x().sqrt(), col.y().sqrt(), col.z().sqrt());
 
-            let ir = (255.0 * col.r()) as u8;
-            let ig = (255.0 * col.g()) as u8;
-            let ib = (255.0 * col.b()) as u8;
+            let ir = (255.99 * col.r()) as u8;
+            let ig = (255.99 * col.g()) as u8;
+            let ib = (255.99 * col.b()) as u8;
             content.push_str(format!("{} {} {}\n", ir, ig, ib).as_str());
         }
     }
