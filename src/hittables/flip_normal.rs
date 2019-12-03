@@ -14,14 +14,10 @@ impl<T: Hitable> FlipNormal<T> {
 
 impl<T: Hitable> Hitable for FlipNormal<T> {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
-        match self.hittable.hit(r, t_min, t_max) {
-            Some(hit) => {
-                let mut hit = hit;
-                hit.normal = -hit.normal;
-                Some(hit)
-            }
-            None => None,
-        }
+        self.hittable.hit(r, t_min, t_max).map(|mut hit| {
+            hit.normal = -hit.normal;
+            hit
+        })
     }
 
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
