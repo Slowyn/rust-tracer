@@ -7,7 +7,7 @@ mod textures;
 extern crate rand;
 extern crate stb_image;
 
-use crate::hittables::{FlipNormal, XYRect, XZRect, YZRect};
+use crate::hittables::{FlipNormal, XYRect, XZRect, YZRect, BoxShape};
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 use hittables::{HittableList, MovingSphere, Sphere};
@@ -63,7 +63,7 @@ fn random_scene() -> HittableList {
     scene.push(Sphere::new(
         1000.0,
         Vec3::new(0.0, -1000.0, 0.0),
-        Box::new(Lambertian::new(checker)),
+        Lambertian::new(checker),
     ));
     for a in -11..11 {
         for b in -11..11 {
@@ -83,11 +83,11 @@ fn random_scene() -> HittableList {
                         0.2,
                         center,
                         center + Vec3::new(0.0, 0.5 * rng.gen::<f32>(), 0.0),
-                        Box::new(Lambertian::new(ConstantTexture::new(Vec3::new(
+                        Lambertian::new(ConstantTexture::new(Vec3::new(
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
                             rng.gen::<f32>() * rng.gen::<f32>(),
-                        )))),
+                        ))),
                         0.0,
                         1.0,
                     ));
@@ -96,18 +96,18 @@ fn random_scene() -> HittableList {
                     scene.push(Sphere::new(
                         0.2,
                         center,
-                        Box::new(Metal::new(
+                        Metal::new(
                             Vec3::new(
                                 0.5 * (1.0 + rng.gen::<f32>()),
                                 0.5 * (1.0 + rng.gen::<f32>()),
                                 0.5 * (1.0 + rng.gen::<f32>()),
                             ),
                             0.5 * rng.gen::<f32>(),
-                        )),
+                        ),
                     ));
                 } else {
                     // Glass
-                    scene.push(Sphere::new(0.2, center, Box::new(Dielectric::new(1.5))));
+                    scene.push(Sphere::new(0.2, center, Dielectric::new(1.5)));
                 }
             }
         }
@@ -115,19 +115,19 @@ fn random_scene() -> HittableList {
     scene.push(Sphere::new(
         1.0,
         Vec3::new(0.0, 1.0, 0.0),
-        Box::new(Dielectric::new(1.5)),
+        Dielectric::new(1.5),
     ));
     scene.push(Sphere::new(
         1.0,
         Vec3::new(-4.0, 1.0, 0.0),
-        Box::new(Lambertian::new(ConstantTexture::new(Vec3::new(
+        Lambertian::new(ConstantTexture::new(Vec3::new(
             0.4, 0.2, 0.1,
-        )))),
+        ))),
     ));
     scene.push(Sphere::new(
         1.0,
         Vec3::new(4.0, 1.0, 0.0),
-        Box::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)),
+        Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0),
     ));
     scene
 }
@@ -141,7 +141,7 @@ fn two_spheres() -> HittableList {
     scene.push(Sphere::new(
         10.0,
         Vec3::new(0.0, -10.0, 0.0),
-        Box::new(Lambertian::new(checker)),
+        Lambertian::new(checker),
     ));
     let checker = CheckerTexture::new(
         ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
@@ -150,7 +150,7 @@ fn two_spheres() -> HittableList {
     scene.push(Sphere::new(
         10.0,
         Vec3::new(0.0, 10.0, 0.0),
-        Box::new(Lambertian::new(checker)),
+        Lambertian::new(checker),
     ));
     scene
 }
@@ -166,11 +166,11 @@ fn earth() -> HittableList {
     scene.push(Sphere::new(
         2.0,
         Vec3::new(0.0, 0.0, 0.0),
-        Box::new(Lambertian::new(ImageTexture::new(
+        Lambertian::new(ImageTexture::new(
             image.data,
             image.width,
             image.height,
-        ))),
+        )),
     ));
     scene
 }
@@ -181,13 +181,13 @@ fn two_perlin_spheres() -> HittableList {
     scene.push(Sphere::new(
         1000.0,
         Vec3::new(0.0, -1000.0, 0.0),
-        Box::new(Lambertian::new(pertext)),
+        Lambertian::new(pertext),
     ));
     let pertext = NoiseTexture::new(3.1);
     scene.push(Sphere::new(
         2.0,
         Vec3::new(0.0, 2.0, 0.0),
-        Box::new(Lambertian::new(pertext)),
+        Lambertian::new(pertext),
     ));
     scene
 }
@@ -198,27 +198,27 @@ fn simple_light() -> HittableList {
     scene.push(Sphere::new(
         1000.0,
         Vec3::new(0.0, -1000.0, 0.0),
-        Box::new(Lambertian::new(pertext)),
+        Lambertian::new(pertext),
     ));
     let pertext = NoiseTexture::new(3.1);
     scene.push(Sphere::new(
         2.0,
         Vec3::new(0.0, 2.0, 0.0),
-        Box::new(Lambertian::new(pertext)),
+        Lambertian::new(pertext),
     ));
 
     scene.push(Sphere::new(
         2.0,
         Vec3::new(0.0, 2.0, 0.0),
-        Box::new(Lambertian::new(pertext)),
+        Lambertian::new(pertext),
     ));
 
     scene.push(Sphere::new(
         2.0,
         Vec3::new(0.0, 7.0, 0.0),
-        Box::new(DiffuseLight::new(ConstantTexture::new(Vec3::new(
+        DiffuseLight::new(ConstantTexture::new(Vec3::new(
             4.0, 4.0, 4.0,
-        )))),
+        ))),
     ));
 
     scene.push(XYRect::new(
@@ -227,16 +227,16 @@ fn simple_light() -> HittableList {
         1.0,
         3.0,
         -2.0,
-        Box::new(DiffuseLight::new(ConstantTexture::new(Vec3::new(
+        DiffuseLight::new(ConstantTexture::new(Vec3::new(
             4.0, 4.0, 4.0,
-        )))),
+        ))),
     ));
 
     scene
 }
 
 fn cornell_box() -> HittableList {
-    let mut scene = HittableList::new(Vec::with_capacity(5));
+    let mut scene = HittableList::new(Vec::with_capacity(7));
     let red = Lambertian::new(ConstantTexture::new(Vec3::new(0.65, 0.05, 0.05)));
     let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
     let green = Lambertian::new(ConstantTexture::new(Vec3::new(0.12, 0.45, 0.15)));
@@ -248,16 +248,16 @@ fn cornell_box() -> HittableList {
         0.0,
         555.0,
         555.0,
-        Box::new(green),
+        green,
     )));
-    scene.push(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, Box::new(red)));
+    scene.push(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red));
     scene.push(XZRect::new(
         213.0,
         343.0,
         227.0,
         332.0,
         554.0,
-        Box::new(light),
+        light,
     ));
     scene.push(FlipNormal::new(XZRect::new(
         0.0,
@@ -265,25 +265,32 @@ fn cornell_box() -> HittableList {
         0.0,
         555.0,
         555.0,
-        Box::new(white),
+        white.clone(),
     )));
-    let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
-    scene.push(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, Box::new(white)));
-    let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
+    scene.push(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, white.clone()));
     scene.push(FlipNormal::new(XYRect::new(
         0.0,
         555.0,
         0.0,
         555.0,
         555.0,
-        Box::new(white),
+        white.clone(),
     )));
+    scene.push(BoxShape::new(
+        Vec3::new(130.0, 0.0, 65.0),
+        Vec3::new(295.0, 165.0, 230.0),
+        white.clone(),
+    ));
+    scene.push(BoxShape::new(
+        Vec3::new(265.0, 0.0, 295.0),
+        Vec3::new(430.0, 330.0, 460.0),
+        white.clone(),
+    ));
 
     scene
 }
 
 fn main() -> std::io::Result<()> {
-    let mut image = File::create("img.ppm")?;
     let nx: i32 = 500;
     let ny: i32 = 250;
     let ns: i32 = 1000;
@@ -331,5 +338,6 @@ fn main() -> std::io::Result<()> {
             content.push_str(format!("{} {} {}\n", ir, ig, ib).as_str());
         }
     }
+    let mut image = File::create("img.ppm")?;
     image.write_all(content.as_bytes())
 }

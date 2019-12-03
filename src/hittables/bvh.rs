@@ -6,61 +6,61 @@ use std::cmp::Ordering;
 use std::cmp::Ordering::*;
 
 // Bounding Volume Hierarchy
-pub struct BVHNode {
+pub struct BVHNode<T: Hitable, S: Hitable> {
     pub b_box: AABB,
-    pub left: Box<dyn Hitable>,
-    pub right: Box<dyn Hitable>,
+    pub left: T,
+    pub right: S,
 }
 
-impl BVHNode {
-    pub fn new(h_list: HittableList, t0: f32, t1: f32) -> BVHNode {
-        let mut h_list: HittableList = h_list;
-        let mut rng = rand::thread_rng();
-        let axis = rng.gen_range(0, 3);
+//impl<T: Hitable, S: Hitable> BVHNode<T, S> {
+//    pub fn new(h_list: HittableList, t0: f32, t1: f32) -> BVHNode<T, S> {
+//        let mut h_list: HittableList = h_list;
+//        let mut rng = rand::thread_rng();
+//        let axis = rng.gen_range(0, 3);
+//
+//        let compare_fn = match axis {
+//            0 => box_x_compare,
+//            1 => box_y_compare,
+//            2 => box_z_compare,
+//            _ => panic!("Incorrect axis choice"),
+//        };
+//        let left;
+//        let right;
+//
+//        h_list.entities.sort_by(compare_fn);
+//
+//        if h_list.entities.len() == 1 {
+//            left = h_list.entities[0].clone();
+//            right = h_list.entities[0].clone();
+//        } else if h_list.entities.len() == 2 {
+//            left = h_list.entities[0].clone();
+//            right = h_list.entities[1].clone();
+//        } else {
+//            let h_list2_entities = h_list.entities.split_off(h_list.entities.len() / 2);
+//            left = Box::new(BVHNode::new(h_list, t0, t1));
+//            right = Box::new(BVHNode::new(
+//                HittableList {
+//                    entities: h_list2_entities,
+//                },
+//                t0,
+//                t1,
+//            ));
+//        }
+//
+//        let (box_left_o, box_right_o) = (left.bounding_box(t0, t1), right.bounding_box(t0, t1));
+//        if box_left_o.is_none() || box_right_o.is_none() {
+//            panic!("no bounding box in bvh_node constructor");
+//        }
+//
+//        BVHNode {
+//            left,
+//            right,
+//            b_box: surrounding_box(box_left_o.unwrap(), box_right_o.unwrap()),
+//        }
+//    }
+//}
 
-        let compare_fn = match axis {
-            0 => box_x_compare,
-            1 => box_y_compare,
-            2 => box_z_compare,
-            _ => panic!("Incorrect axis choice"),
-        };
-        let left;
-        let right;
-
-        h_list.entities.sort_by(compare_fn);
-
-        if h_list.entities.len() == 1 {
-            left = h_list.entities[0].clone();
-            right = h_list.entities[0].clone();
-        } else if h_list.entities.len() == 2 {
-            left = h_list.entities[0].clone();
-            right = h_list.entities[1].clone();
-        } else {
-            let h_list2_entities = h_list.entities.split_off(h_list.entities.len() / 2);
-            left = Box::new(BVHNode::new(h_list, t0, t1));
-            right = Box::new(BVHNode::new(
-                HittableList {
-                    entities: h_list2_entities,
-                },
-                t0,
-                t1,
-            ));
-        }
-
-        let (box_left_o, box_right_o) = (left.bounding_box(t0, t1), right.bounding_box(t0, t1));
-        if box_left_o.is_none() || box_right_o.is_none() {
-            panic!("no bounding box in bvh_node constructor");
-        }
-
-        BVHNode {
-            left,
-            right,
-            b_box: surrounding_box(box_left_o.unwrap(), box_right_o.unwrap()),
-        }
-    }
-}
-
-impl Hitable for BVHNode {
+impl<T: Hitable, S: Hitable> Hitable for BVHNode<T, S> {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         match self.b_box.hit(r, t_min, t_max) {
             Some((min, max)) => {

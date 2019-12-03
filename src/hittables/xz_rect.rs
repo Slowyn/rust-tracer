@@ -1,17 +1,17 @@
 use crate::math::Vec3;
 use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
 
-pub struct XZRect {
+pub struct XZRect<T: Material> {
     x0: f32,
     x1: f32,
     z0: f32,
     z1: f32,
     k: f32,
-    material: Box<dyn Material>,
+    material: T,
 }
 
-impl XZRect {
-    pub fn new(x0: f32, x1: f32, z0: f32, z1: f32, k: f32, material: Box<dyn Material>) -> Self {
+impl<T: Material> XZRect<T> {
+    pub fn new(x0: f32, x1: f32, z0: f32, z1: f32, k: f32, material: T) -> Self {
         XZRect {
             x0,
             x1,
@@ -23,7 +23,7 @@ impl XZRect {
     }
 }
 
-impl Hitable for XZRect {
+impl<T: Material> Hitable for XZRect<T> {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let t = (self.k - r.origin.y()) / r.direction.y();
         if t < t_min || t > t_max {
@@ -38,7 +38,7 @@ impl Hitable for XZRect {
             t,
             r.point_at_parameter(t),
             Vec3::new(0.0, 1.0, 0.0),
-            &*self.material,
+            &self.material,
             (x - self.x0) / (self.x1 - self.x0),
             (z - self.z0) / (self.z1 - self.z0),
         ))

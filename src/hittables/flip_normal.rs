@@ -1,18 +1,18 @@
 use crate::physics::{HitRecord, Hitable, Ray, AABB};
 
-pub struct FlipNormal {
-    hittable: Box<dyn Hitable>,
+pub struct FlipNormal<T: Hitable> {
+    hittable: T,
 }
 
-impl FlipNormal {
-    pub fn new<S: Hitable + 'static>(hitable: S) -> Self {
+impl<T: Hitable> FlipNormal<T> {
+    pub fn new(hittable: T) -> Self {
         FlipNormal {
-            hittable: Box::new(hitable),
+            hittable,
         }
     }
 }
 
-impl Hitable for FlipNormal {
+impl<T: Hitable> Hitable for FlipNormal<T> {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         match self.hittable.hit(r, t_min, t_max) {
             Some(hit) => {

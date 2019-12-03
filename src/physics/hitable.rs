@@ -32,9 +32,3 @@ pub trait Hitable {
         (0.0, 0.0)
     }
 }
-
-impl Clone for Box<dyn Hitable> {
-    fn clone(&self) -> Self {
-        self.clone()
-    }
-}

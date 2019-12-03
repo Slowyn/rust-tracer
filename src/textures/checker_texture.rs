@@ -1,21 +1,19 @@
 use crate::math::Vec3;
 use crate::textures::Texture;
 
-pub struct CheckerTexture {
-    odd: Box<dyn Texture>,
-    even: Box<dyn Texture>,
+#[derive(Clone)]
+pub struct CheckerTexture<T: Texture + Clone, S: Texture + Clone> {
+    odd: T,
+    even: S,
 }
 
-impl CheckerTexture {
-    pub fn new<T: Texture + 'static, S: Texture + 'static>(odd: T, even: S) -> Self {
-        CheckerTexture {
-            odd: Box::new(odd),
-            even: Box::new(even),
-        }
+impl<T: Texture + Clone, S: Texture + Clone> CheckerTexture<T, S> {
+    pub fn new(odd: T, even: S) -> Self {
+        CheckerTexture { odd, even }
     }
 }
 
-impl Texture for CheckerTexture {
+impl<T: Texture + Clone, S: Texture + Clone> Texture for CheckerTexture<T, S> {
     fn texture(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
         let sines = (10.0 * p.x()).sin() * (10.0 * p.y()).sin() * (10.0 * p.z()).sin();
         if sines < 0.0 {

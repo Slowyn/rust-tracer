@@ -1,21 +1,21 @@
 use crate::math::{dot, Vec3};
 use crate::physics::{surrounding_box, HitRecord, Hitable, Material, Ray, AABB};
 
-pub struct MovingSphere {
+pub struct MovingSphere<T: Material> {
     pub r: f32,
     pub center0: Vec3,
     pub center1: Vec3,
-    pub material: Box<dyn Material>,
+    pub material: T,
     pub time0: f32,
     pub time1: f32,
 }
 
-impl MovingSphere {
+impl<T: Material> MovingSphere<T> {
     pub fn new(
         radius: f32,
         center0: Vec3,
         center1: Vec3,
-        material: Box<dyn Material>,
+        material: T,
         time0: f32,
         time1: f32,
     ) -> Self {
@@ -35,7 +35,7 @@ impl MovingSphere {
     }
 }
 
-impl Hitable for MovingSphere {
+impl<T: Material> Hitable for MovingSphere<T> {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let radius = self.r;
         let center = self.center(r.time);
@@ -50,14 +50,14 @@ impl Hitable for MovingSphere {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
                 let (u, v) = self.get_uv(&p);
-                return Some(HitRecord::new(temp, p, normal, &*self.material, u, v));
+                return Some(HitRecord::new(temp, p, normal, &self.material, u, v));
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let p = r.point_at_parameter(temp);
                 let normal = (p - center) / radius;
                 let (u, v) = self.get_uv(&p);
-                return Some(HitRecord::new(temp, p, normal, &*self.material, u, v));
+                return Some(HitRecord::new(temp, p, normal, &self.material, u, v));
             }
         }
         None

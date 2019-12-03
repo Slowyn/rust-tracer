@@ -1,6 +1,7 @@
 use crate::math::Vec3;
 use crate::textures::Texture;
 
+#[derive(Clone)]
 pub struct ImageTexture {
     data: Vec<u8>,
     nx: usize,

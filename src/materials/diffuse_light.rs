@@ -2,19 +2,17 @@ use crate::math::Vec3;
 use crate::physics::{HitRecord, Material, Ray};
 use crate::textures::Texture;
 
-pub struct DiffuseLight {
-    emit: Box<dyn Texture>,
+pub struct DiffuseLight<T: Texture> {
+    emit: T,
 }
 
-impl DiffuseLight {
-    pub fn new<S: Texture + 'static>(texture: S) -> Self {
-        DiffuseLight {
-            emit: Box::new(texture),
-        }
+impl<T: Texture> DiffuseLight<T> {
+    pub fn new(texture: T) -> Self {
+        DiffuseLight { emit: texture }
     }
 }
 
-impl Material for DiffuseLight {
+impl<T: Texture> Material for DiffuseLight<T> {
     fn scatter(
         &self,
         r: &Ray,

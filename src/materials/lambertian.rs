@@ -3,19 +3,20 @@ use crate::physics::{HitRecord, Material, Ray};
 use crate::random_in_unit_sphere;
 use crate::textures::Texture;
 
-pub struct Lambertian {
-    albedo: Box<dyn Texture>,
+#[derive(Clone)]
+pub struct Lambertian<T: Texture + Clone> {
+    albedo: T,
 }
 
-impl Lambertian {
-    pub fn new<S: Texture + 'static>(texture: S) -> Self {
+impl<T: Texture + Clone> Lambertian<T> {
+    pub fn new(texture: T) -> Self {
         Lambertian {
-            albedo: Box::new(texture),
+            albedo: texture,
         }
     }
 }
 
-impl Material for Lambertian {
+impl<T: Texture + Clone> Material for Lambertian<T> {
     fn scatter(
         &self,
         r_in: &Ray,
