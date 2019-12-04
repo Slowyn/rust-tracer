@@ -4,19 +4,23 @@ mod math;
 mod physics;
 mod textures;
 
+extern crate indicatif;
 extern crate rand;
+extern crate rayon;
 extern crate stb_image;
 
 use crate::hittables::{
-    BVH, BoxShape, ConstantMedium, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect,
+    BoxShape, ConstantMedium, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect, BVH,
 };
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 use hittables::{HittableList, MovingSphere, Sphere};
+use indicatif::ProgressBar;
 use materials::{Dielectric, Lambertian, Metal};
 use math::Vec3;
 use physics::{Camera, Hitable, Ray};
 use rand::prelude::*;
+use rayon::prelude::*;
 use stb_image::image;
 use stb_image::image::LoadResult;
 use std::fs::File;
@@ -404,12 +408,9 @@ fn final_scene() -> HittableList {
 }
 
 fn main() -> std::io::Result<()> {
-    let nx: i32 = 1000;
-    let ny: i32 = 1000;
+    let nx: i32 = 1366;
+    let ny: i32 = 768;
     let ns: i32 = 10000;
-    let capacity = (nx * ny) as usize;
-    let mut content = String::new();
-    content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
 
     let lookfrom = Vec3::new(478.0, 278.0, -600.0);
     let lookat = Vec3::new(278.0, 278.0, 0.0);
@@ -429,28 +430,40 @@ fn main() -> std::io::Result<()> {
 
     let world = final_scene();
 
-    for j in (0..ny).rev() {
-        for i in 0..nx {
-            let mut col = Vec3::default();
-            for _s in 0..ns {
-                let mut rng = rand::thread_rng();
-                let r1: f32 = rng.gen();
-                let u = (i as f32 + r1) / nx as f32;
-                let r2: f32 = rng.gen();
-                let v = (j as f32 + r2) / ny as f32;
-                let ray = camera.get_ray(u, v);
-                let _p = ray.point_at_parameter(2.0);
-                col += color(&ray, &world, 0);
-            }
-            col /= ns as f32;
-            col = Vec3::new(col.x().sqrt(), col.y().sqrt(), col.z().sqrt());
+    let pixels = (0..ny)
+        .into_par_iter()
+        .rev()
+        .flat_map(|y| {
+            (0..nx)
+                .flat_map(|x| {
+                    let mut col = Vec3::default();
+                    for _s in 0..ns {
+                        let mut rng = rand::thread_rng();
+                        let r1: f32 = rng.gen();
+                        let u = (x as f32 + r1) / nx as f32;
+                        let r2: f32 = rng.gen();
+                        let v = (y as f32 + r2) / ny as f32;
+                        let ray = camera.get_ray(u, v);
+                        col += color(&ray, &world, 0);
+                    }
+                    col /= ns as f32;
+                    col = Vec3::new(col.x().sqrt(), col.y().sqrt(), col.z().sqrt());
 
-            let ir = (255.99 * col.r()).min(255.0) as u8;
-            let ig = (255.99 * col.g()).min(255.0) as u8;
-            let ib = (255.99 * col.b()).min(255.0) as u8;
-            content.push_str(format!("{} {} {}\n", ir, ig, ib).as_str());
-        }
-    }
+                    let r = (255.99 * col.r()).min(255.0) as u8;
+                    let g = (255.99 * col.g()).min(255.0) as u8;
+                    let b = (255.99 * col.b()).min(255.0) as u8;
+                    vec![r, g, b]
+                })
+                .collect::<Vec<u8>>()
+        })
+        .collect::<Vec<u8>>();
+
     let mut image = File::create("img.ppm")?;
+    let capacity = (nx * ny) as usize;
+    let mut content = String::new();
+    content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
+    for pixel in pixels.chunks(3) {
+        content.push_str(format!("{} {} {}\n", pixel[0], pixel[1], pixel[2]).as_str())
+    }
     image.write_all(content.as_bytes())
 }

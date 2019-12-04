@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 rand = "0.7.2"
 stb_image = "0.2.2"
+rayon = "1.2.1"
+indicatif="0.13.0"

@@ -1,7 +1,7 @@
 use crate::math::Vec3;
 use crate::physics::{HitRecord, Ray};
 
-pub trait Material {
+pub trait Material: Sync {
     fn scatter(
         &self,
         r: &Ray,

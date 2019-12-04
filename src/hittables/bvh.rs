@@ -1,20 +1,24 @@
-use std::f32;
+use crate::physics::{surrounding_box, HitRecord, Hitable, Ray, AABB};
 use std::cmp::Ordering;
-use crate::physics::{AABB, Hitable, HitRecord, Ray, surrounding_box};
+use std::f32;
 
 enum BVHNode {
     Branch { left: Box<BVH>, right: Box<BVH> },
-    Leaf(Box<dyn Hitable>)
+    Leaf(Box<dyn Hitable>),
 }
 
 pub struct BVH {
     tree: BVHNode,
-    bbox: AABB
+    bbox: AABB,
 }
 
 impl BVH {
     pub fn new(mut hitable: Vec<Box<dyn Hitable>>, time0: f32, time1: f32) -> Self {
-        fn box_compare(time0: f32, time1: f32, axis: usize) -> impl FnMut(&Box<dyn Hitable>, &Box<dyn Hitable>) -> Ordering {
+        fn box_compare(
+            time0: f32,
+            time1: f32,
+            axis: usize,
+        ) -> impl FnMut(&Box<dyn Hitable>, &Box<dyn Hitable>) -> Ordering {
             move |a, b| {
                 let a_bbox = a.bounding_box(time0, time1);
                 let b_bbox = b.bounding_box(time0, time1);
@@ -29,13 +33,15 @@ impl BVH {
         }
 
         fn axis_range(hitable: &Vec<Box<dyn Hitable>>, time0: f32, time1: f32, axis: usize) -> f32 {
-            let (min, max) = hitable.iter().fold((f32::MAX, f32::MIN), |(bmin, bmax), hit| {
-                if let Some(aabb) = hit.bounding_box(time0, time1) {
-                    (bmin.min(aabb.min[axis]), bmax.max(aabb.max[axis]))
-                } else {
-                    (bmin, bmax)
-                }
-            });
+            let (min, max) = hitable
+                .iter()
+                .fold((f32::MAX, f32::MIN), |(bmin, bmax), hit| {
+                    if let Some(aabb) = hit.bounding_box(time0, time1) {
+                        (bmin.min(aabb.min[axis]), bmax.max(aabb.max[axis]))
+                    } else {
+                        (bmin, bmax)
+                    }
+                });
             max - min
         }
 
@@ -54,16 +60,25 @@ impl BVH {
             1 => {
                 let leaf = hitable.pop().unwrap();
                 if let Some(bbox) = leaf.bounding_box(time0, time1) {
-                    BVH { tree: BVHNode::Leaf(leaf), bbox }
+                    BVH {
+                        tree: BVHNode::Leaf(leaf),
+                        bbox,
+                    }
                 } else {
                     panic!["no bounding box in bvh node"]
                 }
-            },
+            }
             _ => {
                 let right = BVH::new(hitable.drain(len / 2..).collect(), time0, time1);
                 let left = BVH::new(hitable, time0, time1);
                 let bbox = surrounding_box(&left.bbox, &right.bbox);
-                BVH { tree: BVHNode::Branch { left: Box::new(left), right: Box::new(right) }, bbox }
+                BVH {
+                    tree: BVHNode::Branch {
+                        left: Box::new(left),
+                        right: Box::new(right),
+                    },
+                    bbox,
+                }
             }
         }
     }
@@ -72,14 +87,18 @@ impl BVH {
 impl Hitable for BVH {
     fn hit(&self, ray: &Ray, t0: f32, t1: f32) -> Option<HitRecord> {
         match self.bbox.hit(&ray, t0, t1) {
-            Some((t_min, mut t_max)) => {
-                match &self.tree {
-                    BVHNode::Leaf(leaf) => leaf.hit(&ray, t_min, t_max),
-                    BVHNode::Branch { left, right} => {
-                        let left = left.hit(&ray, t_min, t_max);
-                        if let Some(l) = &left { t_max = l.t };
-                        let right = right.hit(&ray, t_min, t_max);
-                        if right.is_some() { right } else { left }
+            Some((t_min, mut t_max)) => match &self.tree {
+                BVHNode::Leaf(leaf) => leaf.hit(&ray, t_min, t_max),
+                BVHNode::Branch { left, right } => {
+                    let left = left.hit(&ray, t_min, t_max);
+                    if let Some(l) = &left {
+                        t_max = l.t
+                    };
+                    let right = right.hit(&ray, t_min, t_max);
+                    if right.is_some() {
+                        right
+                    } else {
+                        left
                     }
                 }
             },

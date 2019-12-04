@@ -1,6 +1,5 @@
 use crate::math::Vec3;
 use crate::physics::Ray;
-use std::mem::swap;
 
 #[inline]
 fn ffmin(a: f32, b: f32) -> f32 {
@@ -41,7 +40,7 @@ impl AABB {
             t_min = t_min.max(t0);
             t_max = t_max.min(t1);
             if t_max <= t_min {
-                return None
+                return None;
             }
         }
         Some((t_min, t_max))
