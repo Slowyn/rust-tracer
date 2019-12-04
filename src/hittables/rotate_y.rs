@@ -11,7 +11,7 @@ pub struct RotateY<T: Hitable> {
 
 impl<T: Hitable> RotateY<T> {
     pub fn new(object: T, angle: f32) -> Self {
-        let radians = (PI / 100.0) * angle;
+        let radians = (PI / 180.0) * angle;
         let sin_theta = radians.sin();
         let cos_theta = radians.cos();
         let aabb = object.bounding_box(0.0, 1.0);
