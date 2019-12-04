@@ -45,8 +45,4 @@ impl Hitable for HittableList {
         }
         r_box
     }
-
-    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
-        (0.0, 0.0)
-    }
 }

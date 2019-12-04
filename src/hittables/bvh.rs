@@ -84,10 +84,6 @@ impl<T: Hitable, S: Hitable> Hitable for BVHNode<T, S> {
     fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(self.b_box)
     }
-
-    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
-        (0.0, 0.0)
-    }
 }
 
 fn box_x_compare(a: &Box<dyn Hitable>, b: &Box<dyn Hitable>) -> Ordering {

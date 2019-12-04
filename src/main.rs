@@ -7,7 +7,7 @@ mod textures;
 extern crate rand;
 extern crate stb_image;
 
-use crate::hittables::{FlipNormal, XYRect, XZRect, YZRect, BoxShape};
+use crate::hittables::{BoxShape, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect};
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 use hittables::{HittableList, MovingSphere, Sphere};
@@ -120,9 +120,7 @@ fn random_scene() -> HittableList {
     scene.push(Sphere::new(
         1.0,
         Vec3::new(-4.0, 1.0, 0.0),
-        Lambertian::new(ConstantTexture::new(Vec3::new(
-            0.4, 0.2, 0.1,
-        ))),
+        Lambertian::new(ConstantTexture::new(Vec3::new(0.4, 0.2, 0.1))),
     ));
     scene.push(Sphere::new(
         1.0,
@@ -166,11 +164,7 @@ fn earth() -> HittableList {
     scene.push(Sphere::new(
         2.0,
         Vec3::new(0.0, 0.0, 0.0),
-        Lambertian::new(ImageTexture::new(
-            image.data,
-            image.width,
-            image.height,
-        )),
+        Lambertian::new(ImageTexture::new(image.data, image.width, image.height)),
     ));
     scene
 }
@@ -216,9 +210,7 @@ fn simple_light() -> HittableList {
     scene.push(Sphere::new(
         2.0,
         Vec3::new(0.0, 7.0, 0.0),
-        DiffuseLight::new(ConstantTexture::new(Vec3::new(
-            4.0, 4.0, 4.0,
-        ))),
+        DiffuseLight::new(ConstantTexture::new(Vec3::new(4.0, 4.0, 4.0))),
     ));
 
     scene.push(XYRect::new(
@@ -227,9 +219,7 @@ fn simple_light() -> HittableList {
         1.0,
         3.0,
         -2.0,
-        DiffuseLight::new(ConstantTexture::new(Vec3::new(
-            4.0, 4.0, 4.0,
-        ))),
+        DiffuseLight::new(ConstantTexture::new(Vec3::new(4.0, 4.0, 4.0))),
     ));
 
     scene
@@ -243,22 +233,10 @@ fn cornell_box() -> HittableList {
     let light = DiffuseLight::new(ConstantTexture::new(Vec3::new(15.0, 15.0, 15.0)));
 
     scene.push(FlipNormal::new(YZRect::new(
-        0.0,
-        555.0,
-        0.0,
-        555.0,
-        555.0,
-        green,
+        0.0, 555.0, 0.0, 555.0, 555.0, green,
     )));
     scene.push(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red));
-    scene.push(XZRect::new(
-        213.0,
-        343.0,
-        227.0,
-        332.0,
-        554.0,
-        light,
-    ));
+    scene.push(XZRect::new(213.0, 343.0, 227.0, 332.0, 554.0, light));
     scene.push(FlipNormal::new(XZRect::new(
         0.0,
         555.0,
@@ -276,15 +254,27 @@ fn cornell_box() -> HittableList {
         555.0,
         white.clone(),
     )));
-    scene.push(BoxShape::new(
+    scene.push(Translate::new(
+        RotateY::new(
+            BoxShape::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(165.0, 165.0, 165.0),
+                white.clone(),
+            ),
+            -18.0,
+        ),
         Vec3::new(130.0, 0.0, 65.0),
-        Vec3::new(295.0, 165.0, 230.0),
-        white.clone(),
     ));
-    scene.push(BoxShape::new(
+    scene.push(Translate::new(
+        RotateY::new(
+            BoxShape::new(
+                Vec3::new(0.0, 0.0, 0.0),
+                Vec3::new(165.0, 330.0, 165.0),
+                white.clone(),
+            ),
+            15.0,
+        ),
         Vec3::new(265.0, 0.0, 295.0),
-        Vec3::new(430.0, 330.0, 460.0),
-        white.clone(),
     ));
 
     scene
@@ -293,7 +283,7 @@ fn cornell_box() -> HittableList {
 fn main() -> std::io::Result<()> {
     let nx: i32 = 500;
     let ny: i32 = 250;
-    let ns: i32 = 1000;
+    let ns: i32 = 200;
     let capacity = (nx * ny) as usize;
     let mut content = String::new();
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());

@@ -6,9 +6,7 @@ pub struct FlipNormal<T: Hitable> {
 
 impl<T: Hitable> FlipNormal<T> {
     pub fn new(hittable: T) -> Self {
-        FlipNormal {
-            hittable,
-        }
+        FlipNormal { hittable }
     }
 }
 

@@ -181,3 +181,14 @@ impl std::ops::Index<usize> for Vec3 {
         }
     }
 }
+
+impl std::ops::IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.0,
+            1 => &mut self.1,
+            2 => &mut self.2,
+            _ => panic!("Vec3: Out of bounds"),
+        }
+    }
+}

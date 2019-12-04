@@ -10,9 +10,7 @@ pub struct Lambertian<T: Texture + Clone> {
 
 impl<T: Texture + Clone> Lambertian<T> {
     pub fn new(texture: T) -> Self {
-        Lambertian {
-            albedo: texture,
-        }
+        Lambertian { albedo: texture }
     }
 }
 

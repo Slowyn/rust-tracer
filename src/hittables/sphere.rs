@@ -16,6 +16,15 @@ impl<T: Material> Sphere<T> {
             material,
         }
     }
+
+    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
+        let p = (*p - self.center) / self.r;
+        let phi = p.z().atan2(p.x());
+        let theta = p.y().asin();
+        let u = 1.0 - (phi + PI) / (2.0 * PI);
+        let v = (theta + PI / 2.0) / PI;
+        (u, v)
+    }
 }
 
 impl<T: Material> Hitable for Sphere<T> {
@@ -51,14 +60,5 @@ impl<T: Material> Hitable for Sphere<T> {
             self.center - Vec3::new(self.r, self.r, self.r),
             self.center + Vec3::new(self.r, self.r, self.r),
         ))
-    }
-
-    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
-        let p = (*p - self.center) / self.r;
-        let phi = p.z().atan2(p.x());
-        let theta = p.y().asin();
-        let u = 1.0 - (phi + PI) / (2.0 * PI);
-        let v = (theta + PI / 2.0) / PI;
-        (u, v)
     }
 }

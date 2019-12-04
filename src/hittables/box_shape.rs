@@ -9,7 +9,6 @@ pub struct BoxShape<T: Material> {
     hit_objects: HittableList,
 }
 
-
 impl<T: Material + Clone + 'static> BoxShape<T> {
     pub fn new(p0: Vec3, p1: Vec3, material: T) -> Self {
         let mut objects = HittableList::new(Vec::with_capacity(6));

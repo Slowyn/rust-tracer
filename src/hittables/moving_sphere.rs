@@ -33,6 +33,10 @@ impl<T: Material> MovingSphere<T> {
         self.center0
             + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
     }
+
+    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
+        (0.0, 0.0)
+    }
 }
 
 impl<T: Material> Hitable for MovingSphere<T> {
@@ -73,9 +77,5 @@ impl<T: Material> Hitable for MovingSphere<T> {
             self.center(t1) + Vec3::new(self.r, self.r, self.r),
         );
         Some(surrounding_box(box0, box1))
-    }
-
-    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
-        (0.0, 0.0)
     }
 }
