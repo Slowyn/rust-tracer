@@ -15,10 +15,12 @@ impl<T: Hitable> Translate<T> {
 impl<T: Hitable> Hitable for Translate<T> {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let moved_ray = Ray::new(r.origin - self.offset, r.direction, r.time);
-        self.object.hit(&moved_ray, t_min, t_max).map(|mut hit_record| {
-            hit_record.p += self.offset;
-            hit_record
-        })
+        self.object
+            .hit(&moved_ray, t_min, t_max)
+            .map(|mut hit_record| {
+                hit_record.p += self.offset;
+                hit_record
+            })
     }
 
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
