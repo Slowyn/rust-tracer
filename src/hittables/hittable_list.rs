@@ -37,7 +37,7 @@ impl Hitable for HittableList {
         for entity in self.entities.iter() {
             match entity.bounding_box(t0, t1) {
                 Some(aabb) => match r_box.as_mut() {
-                    Some(v) => *v = surrounding_box(*v, aabb),
+                    Some(v) => *v = surrounding_box(v, &aabb),
                     None => r_box = Some(aabb),
                 },
                 None => return None,

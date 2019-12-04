@@ -76,6 +76,6 @@ impl<T: Material> Hitable for MovingSphere<T> {
             self.center(t1) - Vec3::new(self.r, self.r, self.r),
             self.center(t1) + Vec3::new(self.r, self.r, self.r),
         );
-        Some(surrounding_box(box0, box1))
+        Some(surrounding_box(&box0, &box1))
     }
 }

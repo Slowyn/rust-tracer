@@ -2,6 +2,7 @@ use crate::math::{dot, Vec3};
 use crate::physics::{reflect, refract, schlick, HitRecord, Material, Ray};
 use crate::rand::prelude::*;
 
+#[derive(Copy, Clone)]
 pub struct Dielectric {
     ref_idx: f32,
 }

@@ -2,6 +2,7 @@ use crate::math::{dot, Vec3};
 use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
 use std::f32::consts::PI;
 
+#[derive(Copy, Clone)]
 pub struct Sphere<T: Material> {
     pub r: f32,
     pub center: Vec3,

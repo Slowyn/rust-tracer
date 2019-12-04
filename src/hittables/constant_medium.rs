@@ -1,8 +1,8 @@
+use crate::materials::Isotropic;
 use crate::math::Vec3;
 use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
 use crate::rand::prelude::*;
 use crate::textures::Texture;
-use crate::materials::Isotropic;
 
 pub struct ConstantMedium<T, S>
 where

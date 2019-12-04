@@ -8,7 +8,7 @@ extern crate rand;
 extern crate stb_image;
 
 use crate::hittables::{
-    BoxShape, ConstantMedium, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect,
+    BVH, BoxShape, ConstantMedium, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect,
 };
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
@@ -293,15 +293,125 @@ fn cornell_box() -> HittableList {
     scene
 }
 
+fn final_scene() -> HittableList {
+    let mut rng = rand::thread_rng();
+    let mut scene = HittableList::new(Vec::with_capacity(30));
+    let mut box_list1 = HittableList::new(Vec::with_capacity(10000));
+    let mut box_list2 = HittableList::new(Vec::with_capacity(10000));
+    let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
+    let ground = Lambertian::new(ConstantTexture::new(Vec3::new(0.48, 0.83, 0.53)));
+    let nb = 20;
+    for i in 0..nb {
+        for j in 0..nb {
+            let w = 100.0;
+            let x0 = -1000.0 + i as f32 * w;
+            let z0 = -1000.0 + j as f32 * w;
+            let y0 = 0.0;
+            let x1 = x0 + w;
+            let y1 = 100.0 * (rng.gen::<f32>() + 0.01);
+            let z1 = z0 + w;
+            box_list1.push(BoxShape::new(
+                Vec3::new(x0, y0, z0),
+                Vec3::new(x1, y1, z1),
+                ground.clone(),
+            ));
+        }
+    }
+    let box_list1_bvh = BVH::new(box_list1.entities, 0.0, 1.0);
+    scene.push(box_list1_bvh);
+
+    let light = DiffuseLight::new(ConstantTexture::new(Vec3::new(7.0, 7.0, 7.0)));
+    let light_source = XZRect::new(123.0, 423.0, 147.0, 412.0, 554.0, light);
+    scene.push(light_source);
+
+    let center = Vec3::new(400.0, 400.0, 200.0);
+    let moving_sphere1 = MovingSphere::new(
+        50.0,
+        center,
+        center + Vec3::new(30.0, 0.0, 0.0),
+        Dielectric::new(1.5),
+        0.0,
+        1.0,
+    );
+    scene.push(moving_sphere1);
+    let sphere1 = Sphere::new(50.0, Vec3::new(260.0, 150.0, 45.0), Dielectric::new(1.5));
+    scene.push(sphere1);
+    let sphere2 = Sphere::new(
+        50.0,
+        Vec3::new(0.0, 150.0, 45.0),
+        Metal::new(Vec3::new(0.8, 0.8, 0.9), 10.0),
+    );
+    scene.push(sphere2);
+
+    let boundary1 = Sphere::new(70.0, Vec3::new(360.0, 150.0, 145.0), Dielectric::new(1.5));
+    scene.push(boundary1.clone());
+    let constant_medium1 = ConstantMedium::new(
+        boundary1,
+        0.2,
+        ConstantTexture::new(Vec3::new(0.2, 0.4, 0.9)),
+    );
+    scene.push(constant_medium1);
+    let boundary2 = Sphere::new(5000.0, Vec3::new(0.0, 0.0, 0.0), Dielectric::new(1.5));
+    let constant_medium2 = ConstantMedium::new(
+        boundary2,
+        0.0001,
+        ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0)),
+    );
+    scene.push(constant_medium2);
+
+    let path = Path::new("./earthmap.jpg");
+    let load_result = image::load(path);
+    let image = match load_result {
+        LoadResult::ImageU8(image) => image,
+        _ => panic!("Image was not loaded!"),
+    };
+
+    let earth = Sphere::new(
+        100.0,
+        Vec3::new(400.0, 200.0, 400.0),
+        Lambertian::new(ImageTexture::new(image.data, image.width, image.height)),
+    );
+    scene.push(earth);
+
+    let noise = NoiseTexture::new(0.1);
+    let noise_sphere = Sphere::new(
+        80.0,
+        Vec3::new(220.0, 280.0, 300.0),
+        Lambertian::new(noise.clone()),
+    );
+
+    let ns = 1000;
+    for i in 0..ns {
+        box_list2.push(Sphere::new(
+            10.0,
+            Vec3::new(
+                165.0 * rng.gen::<f32>(),
+                165.0 * rng.gen::<f32>(),
+                165.0 * rng.gen::<f32>(),
+            ),
+            white.clone(),
+        ));
+    }
+
+    let transformed = Translate::new(
+        RotateY::new(BVH::new(box_list2.entities, 0.0, 1.0), 15.0),
+        Vec3::new(-100.0, 270.0, 395.0),
+    );
+
+    scene.push(transformed);
+
+    scene
+}
+
 fn main() -> std::io::Result<()> {
-    let nx: i32 = 500;
-    let ny: i32 = 250;
-    let ns: i32 = 200;
+    let nx: i32 = 1000;
+    let ny: i32 = 1000;
+    let ns: i32 = 10000;
     let capacity = (nx * ny) as usize;
     let mut content = String::new();
     content.push_str(format!("P3\n{} {}\n255\n", nx, ny).as_str());
 
-    let lookfrom = Vec3::new(278.0, 278.0, -800.0);
+    let lookfrom = Vec3::new(478.0, 278.0, -600.0);
     let lookat = Vec3::new(278.0, 278.0, 0.0);
     let focus_dist = 10.0;
     let aperture: f32 = 0.0;
@@ -317,7 +427,7 @@ fn main() -> std::io::Result<()> {
         1.0,
     );
 
-    let world = cornell_box();
+    let world = final_scene();
 
     for j in (0..ny).rev() {
         for i in 0..nx {
