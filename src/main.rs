@@ -7,7 +7,9 @@ mod textures;
 extern crate rand;
 extern crate stb_image;
 
-use crate::hittables::{BoxShape, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect};
+use crate::hittables::{
+    BoxShape, ConstantMedium, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect,
+};
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 use hittables::{HittableList, MovingSphere, Sphere};
@@ -254,7 +256,7 @@ fn cornell_box() -> HittableList {
         555.0,
         white.clone(),
     )));
-    scene.push(Translate::new(
+    let box1 = Translate::new(
         RotateY::new(
             BoxShape::new(
                 Vec3::new(0.0, 0.0, 0.0),
@@ -264,8 +266,8 @@ fn cornell_box() -> HittableList {
             -18.0,
         ),
         Vec3::new(130.0, 0.0, 65.0),
-    ));
-    scene.push(Translate::new(
+    );
+    let box2 = Translate::new(
         RotateY::new(
             BoxShape::new(
                 Vec3::new(0.0, 0.0, 0.0),
@@ -275,6 +277,17 @@ fn cornell_box() -> HittableList {
             15.0,
         ),
         Vec3::new(265.0, 0.0, 295.0),
+    );
+
+    scene.push(ConstantMedium::new(
+        box1,
+        0.01,
+        ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0)),
+    ));
+    scene.push(ConstantMedium::new(
+        box2,
+        0.01,
+        ConstantTexture::new(Vec3::new(0.0, 0.0, 0.0)),
     ));
 
     scene

@@ -1,5 +1,6 @@
 mod box_shape;
 mod bvh;
+mod constant_medium;
 mod flip_normal;
 mod hittable_list;
 mod moving_sphere;
@@ -11,6 +12,6 @@ mod xz_rect;
 mod yz_rect;
 
 pub use self::{
-    box_shape::*, bvh::*, flip_normal::*, hittable_list::*, moving_sphere::*, rotate_y::*,
-    sphere::*, translate::*, xy_rect::*, xz_rect::*, yz_rect::*,
+    box_shape::*, bvh::*, constant_medium::*, flip_normal::*, hittable_list::*, moving_sphere::*,
+    rotate_y::*, sphere::*, translate::*, xy_rect::*, xz_rect::*, yz_rect::*,
 };
