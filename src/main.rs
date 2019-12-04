@@ -226,17 +226,17 @@ fn simple_light() -> HittableList {
 }
 
 fn cornell_box() -> HittableList {
-    let mut scene = HittableList::new(Vec::with_capacity(7));
+    let mut scene = HittableList::new(Vec::with_capacity(8));
     let red = Lambertian::new(ConstantTexture::new(Vec3::new(0.65, 0.05, 0.05)));
     let white = Lambertian::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)));
     let green = Lambertian::new(ConstantTexture::new(Vec3::new(0.12, 0.45, 0.15)));
-    let light = DiffuseLight::new(ConstantTexture::new(Vec3::new(15.0, 15.0, 15.0)));
+    let light = DiffuseLight::new(ConstantTexture::new(Vec3::new(7.0, 7.0, 7.0)));
 
     scene.push(FlipNormal::new(YZRect::new(
         0.0, 555.0, 0.0, 555.0, 555.0, green,
     )));
     scene.push(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red));
-    scene.push(XZRect::new(213.0, 343.0, 227.0, 332.0, 554.0, light));
+    scene.push(XZRect::new(113.0, 443.0, 127.0, 432.0, 554.0, light));
     scene.push(FlipNormal::new(XZRect::new(
         0.0,
         555.0,
@@ -270,7 +270,7 @@ fn cornell_box() -> HittableList {
             BoxShape::new(
                 Vec3::new(0.0, 0.0, 0.0),
                 Vec3::new(165.0, 330.0, 165.0),
-                white.clone(),
+                white,
             ),
             15.0,
         ),
@@ -322,9 +322,9 @@ fn main() -> std::io::Result<()> {
             col /= ns as f32;
             col = Vec3::new(col.x().sqrt(), col.y().sqrt(), col.z().sqrt());
 
-            let ir = (255.99 * col.r()) as u8;
-            let ig = (255.99 * col.g()) as u8;
-            let ib = (255.99 * col.b()) as u8;
+            let ir = (255.99 * col.r()).min(255.0) as u8;
+            let ig = (255.99 * col.g()).min(255.0) as u8;
+            let ib = (255.99 * col.b()).min(255.0) as u8;
             content.push_str(format!("{} {} {}\n", ir, ig, ib).as_str());
         }
     }
