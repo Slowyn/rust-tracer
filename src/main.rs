@@ -333,7 +333,7 @@ fn final_scene() -> HittableList {
         50.0,
         center,
         center + Vec3::new(30.0, 0.0, 0.0),
-        Dielectric::new(1.5),
+        Lambertian::new(ConstantTexture::new(Vec3::new(0.7, 0.3, 0.1))),
         0.0,
         1.0,
     );
@@ -377,12 +377,12 @@ fn final_scene() -> HittableList {
     );
     scene.push(earth);
 
-    let noise = NoiseTexture::new(0.1);
     let noise_sphere = Sphere::new(
         80.0,
         Vec3::new(220.0, 280.0, 300.0),
-        Lambertian::new(noise.clone()),
+        Lambertian::new(NoiseTexture::new(0.1)),
     );
+    scene.push(noise_sphere);
 
     let ns = 1000;
     for i in 0..ns {
@@ -410,7 +410,7 @@ fn final_scene() -> HittableList {
 fn main() -> std::io::Result<()> {
     let nx: i32 = 1366;
     let ny: i32 = 768;
-    let ns: i32 = 10000;
+    let ns: i32 = 5000;
 
     let lookfrom = Vec3::new(478.0, 278.0, -600.0);
     let lookat = Vec3::new(278.0, 278.0, 0.0);
