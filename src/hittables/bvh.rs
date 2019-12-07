@@ -32,7 +32,7 @@ impl BVH {
             }
         }
 
-        fn axis_range(hitable: &Vec<Box<dyn Hitable>>, time0: f32, time1: f32, axis: usize) -> f32 {
+        fn axis_range(hitable: &[Box<dyn Hitable>], time0: f32, time1: f32, axis: usize) -> f32 {
             let (min, max) = hitable
                 .iter()
                 .fold((f32::MAX, f32::MIN), |(bmin, bmax), hit| {

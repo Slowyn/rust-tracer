@@ -80,19 +80,19 @@ impl Perlin {
 fn perlin_generate() -> [Vec3; 256] {
     let mut rng = thread_rng();
     let mut p = [Vec3::default(); 256];
-    for i in 0..256 {
+    for (_, el) in p.iter_mut().enumerate() {
         let x_random = 2.0 * rng.gen::<f32>() - 1.0;
         let y_random = 2.0 * rng.gen::<f32>() - 1.0;
         let z_random = 2.0 * rng.gen::<f32>() - 1.0;
-        p[i] = Vec3::new(x_random, y_random, z_random).unit_vector()
+        *el = Vec3::new(x_random, y_random, z_random).unit_vector()
     }
     p
 }
 
 fn perlin_generate_perm() -> [i32; 256] {
     let mut p: [i32; 256] = [0; 256];
-    for i in 0..256 {
-        p[i] = i as i32;
+    for (i, el) in p.iter_mut().enumerate() {
+        *el = i as i32;
     }
     let mut rng = thread_rng();
     for i in (0..256).rev() {

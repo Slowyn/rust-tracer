@@ -34,7 +34,7 @@ impl<T: Material> MovingSphere<T> {
             + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
     }
 
-    fn get_uv(&self, p: &Vec3) -> (f32, f32) {
+    fn get_uv(&self, _p: &Vec3) -> (f32, f32) {
         (0.0, 0.0)
     }
 }

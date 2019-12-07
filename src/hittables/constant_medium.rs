@@ -40,10 +40,7 @@ where
             .and_then(|mut rec1| {
                 let mut rng = rand::thread_rng();
                 let rec2 = self.boundary.hit(r, rec1.t + 0.0001, std::f32::MAX);
-                if rec2.is_none() {
-                    return None;
-                }
-                let mut rec2 = rec2.unwrap();
+                let mut rec2 = rec2?;
                 if rec1.t < t_min {
                     rec1.t = t_min;
                 }

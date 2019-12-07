@@ -24,7 +24,7 @@ impl<T: Hitable> Hitable for Translate<T> {
     }
 
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
-        let aabb = self.bounding_box(t0, t1);
-        aabb.map(|mut b| AABB::new(b.min + self.offset, b.max + self.offset))
+        let aabb = self.object.bounding_box(t0, t1);
+        aabb.map(|b| AABB::new(b.min + self.offset, b.max + self.offset))
     }
 }

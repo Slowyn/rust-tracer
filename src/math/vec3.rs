@@ -1,4 +1,4 @@
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Vec3(f32, f32, f32);
 
 pub fn dot(vec1: &Vec3, vec2: &Vec3) -> f32 {

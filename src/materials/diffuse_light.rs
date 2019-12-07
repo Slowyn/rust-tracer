@@ -15,10 +15,10 @@ impl<T: Texture> DiffuseLight<T> {
 impl<T: Texture> Material for DiffuseLight<T> {
     fn scatter(
         &self,
-        r: &Ray,
-        record: &HitRecord,
-        attenuation: &mut Vec3,
-        scattered: &mut Ray,
+        _r: &Ray,
+        _record: &HitRecord,
+        _attenuation: &mut Vec3,
+        _scattered: &mut Ray,
     ) -> bool {
         false
     }
