@@ -1,5 +1,6 @@
+use crate::hittables::{HitRecord, Hitable};
 use crate::math::Vec3;
-use crate::physics::{surrounding_box, HitRecord, Hitable, Ray, AABB};
+use crate::physics::{surrounding_box, Ray, AABB};
 
 pub struct HittableList {
     pub entities: Vec<Box<dyn Hitable>>,

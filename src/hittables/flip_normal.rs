@@ -1,4 +1,5 @@
-use crate::physics::{HitRecord, Hitable, Ray, AABB};
+use crate::hittables::{HitRecord, Hitable};
+use crate::physics::{Ray, AABB};
 
 pub struct FlipNormal<T: Hitable> {
     hittable: T,

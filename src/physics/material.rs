@@ -1,5 +1,6 @@
+use crate::hittables::HitRecord;
 use crate::math::Vec3;
-use crate::physics::{HitRecord, Ray};
+use crate::physics::Ray;
 
 pub trait Material: Sync {
     fn scatter(

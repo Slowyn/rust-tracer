@@ -15,11 +15,11 @@ use crate::hittables::{
 };
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
-use hittables::{HittableList, MovingSphere, Sphere};
+use hittables::{Hitable, HittableList, MovingSphere, Sphere};
 use indicatif::ProgressBar;
 use materials::{Dielectric, Lambertian, Metal};
 use math::Vec3;
-use physics::{Camera, Hitable, Ray};
+use physics::{Camera, Ray};
 use rand::prelude::*;
 use rayon::prelude::*;
 use scene::Scene;
@@ -38,181 +38,7 @@ fn random_in_unit_sphere() -> Vec3 {
     p
 }
 
-fn random_scene() -> HittableList {
-    let mut rng = rand::thread_rng();
-    let n = 500;
-    let mut scene = HittableList::new(Vec::with_capacity(n));
-
-    let checker = CheckerTexture::new(
-        ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
-        ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9)),
-    );
-
-    scene.push(Sphere::new(
-        1000.0,
-        Vec3::new(0.0, -1000.0, 0.0),
-        Lambertian::new(checker),
-    ));
-    for a in -11..11 {
-        for b in -11..11 {
-            let af = a as f32;
-            let bf = b as f32;
-            let choose_mat: f32 = rng.gen();
-            let center = Vec3::new(
-                af + 0.9 + rng.gen::<f32>(),
-                0.2,
-                bf + 0.9 * rng.gen::<f32>(),
-            );
-
-            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                if choose_mat < 0.8 {
-                    // Diffuse
-                    scene.push(MovingSphere::new(
-                        0.2,
-                        center,
-                        center + Vec3::new(0.0, 0.5 * rng.gen::<f32>(), 0.0),
-                        Lambertian::new(ConstantTexture::new(Vec3::new(
-                            rng.gen::<f32>() * rng.gen::<f32>(),
-                            rng.gen::<f32>() * rng.gen::<f32>(),
-                            rng.gen::<f32>() * rng.gen::<f32>(),
-                        ))),
-                        0.0,
-                        1.0,
-                    ));
-                } else if choose_mat < 0.95 {
-                    // Metal
-                    scene.push(Sphere::new(
-                        0.2,
-                        center,
-                        Metal::new(
-                            Vec3::new(
-                                0.5 * (1.0 + rng.gen::<f32>()),
-                                0.5 * (1.0 + rng.gen::<f32>()),
-                                0.5 * (1.0 + rng.gen::<f32>()),
-                            ),
-                            0.5 * rng.gen::<f32>(),
-                        ),
-                    ));
-                } else {
-                    // Glass
-                    scene.push(Sphere::new(0.2, center, Dielectric::new(1.5)));
-                }
-            }
-        }
-    }
-    scene.push(Sphere::new(
-        1.0,
-        Vec3::new(0.0, 1.0, 0.0),
-        Dielectric::new(1.5),
-    ));
-    scene.push(Sphere::new(
-        1.0,
-        Vec3::new(-4.0, 1.0, 0.0),
-        Lambertian::new(ConstantTexture::new(Vec3::new(0.4, 0.2, 0.1))),
-    ));
-    scene.push(Sphere::new(
-        1.0,
-        Vec3::new(4.0, 1.0, 0.0),
-        Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0),
-    ));
-    scene
-}
-
-fn two_spheres() -> HittableList {
-    let checker = CheckerTexture::new(
-        ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
-        ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9)),
-    );
-    let mut scene = HittableList::new(Vec::with_capacity(2));
-    scene.push(Sphere::new(
-        10.0,
-        Vec3::new(0.0, -10.0, 0.0),
-        Lambertian::new(checker),
-    ));
-    let checker = CheckerTexture::new(
-        ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1)),
-        ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9)),
-    );
-    scene.push(Sphere::new(
-        10.0,
-        Vec3::new(0.0, 10.0, 0.0),
-        Lambertian::new(checker),
-    ));
-    scene
-}
-
-fn earth() -> HittableList {
-    let path = Path::new("./earthmap.jpg");
-    let load_result = image::load(path);
-    let image = match load_result {
-        LoadResult::ImageU8(image) => image,
-        _ => panic!("Image was not loaded!"),
-    };
-    let mut scene = HittableList::new(Vec::with_capacity(2));
-    scene.push(Sphere::new(
-        2.0,
-        Vec3::new(0.0, 0.0, 0.0),
-        Lambertian::new(ImageTexture::new(image.data, image.width, image.height)),
-    ));
-    scene
-}
-
-fn two_perlin_spheres() -> HittableList {
-    let pertext = NoiseTexture::new(3.1);
-    let mut scene = HittableList::new(Vec::with_capacity(2));
-    scene.push(Sphere::new(
-        1000.0,
-        Vec3::new(0.0, -1000.0, 0.0),
-        Lambertian::new(pertext),
-    ));
-    let pertext = NoiseTexture::new(3.1);
-    scene.push(Sphere::new(
-        2.0,
-        Vec3::new(0.0, 2.0, 0.0),
-        Lambertian::new(pertext),
-    ));
-    scene
-}
-
-fn simple_light() -> HittableList {
-    let pertext = NoiseTexture::new(3.1);
-    let mut scene = HittableList::new(Vec::with_capacity(4));
-    scene.push(Sphere::new(
-        1000.0,
-        Vec3::new(0.0, -1000.0, 0.0),
-        Lambertian::new(pertext),
-    ));
-    let pertext = NoiseTexture::new(3.1);
-    scene.push(Sphere::new(
-        2.0,
-        Vec3::new(0.0, 2.0, 0.0),
-        Lambertian::new(pertext),
-    ));
-
-    scene.push(Sphere::new(
-        2.0,
-        Vec3::new(0.0, 2.0, 0.0),
-        Lambertian::new(pertext),
-    ));
-
-    scene.push(Sphere::new(
-        2.0,
-        Vec3::new(0.0, 7.0, 0.0),
-        DiffuseLight::new(ConstantTexture::new(Vec3::new(4.0, 4.0, 4.0))),
-    ));
-
-    scene.push(XYRect::new(
-        3.0,
-        5.0,
-        1.0,
-        3.0,
-        -2.0,
-        DiffuseLight::new(ConstantTexture::new(Vec3::new(4.0, 4.0, 4.0))),
-    ));
-
-    scene
-}
-
+#[allow(dead_code)]
 fn cornell_box() -> HittableList {
     let mut scene = HittableList::new(Vec::with_capacity(8));
     let red = Lambertian::new(ConstantTexture::new(Vec3::new(0.65, 0.05, 0.05)));

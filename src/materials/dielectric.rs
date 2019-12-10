@@ -1,5 +1,6 @@
+use crate::hittables::HitRecord;
 use crate::math::{dot, Vec3};
-use crate::physics::{reflect, refract, schlick, HitRecord, Material, Ray};
+use crate::physics::{reflect, refract, schlick, Material, Ray};
 use crate::rand::prelude::*;
 
 #[derive(Copy, Clone)]

@@ -1,5 +1,6 @@
+use crate::hittables::{HitRecord, Hitable};
 use crate::math::{dot, Vec3};
-use crate::physics::{surrounding_box, HitRecord, Hitable, Material, Ray, AABB};
+use crate::physics::{surrounding_box, Material, Ray, AABB};
 
 pub struct MovingSphere<T: Material> {
     pub r: f32,

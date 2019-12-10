@@ -1,6 +1,7 @@
 use crate::hittables::{FlipNormal, HittableList, XYRect, XZRect, YZRect};
+use crate::hittables::{HitRecord, Hitable};
 use crate::math::Vec3;
-use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
+use crate::physics::{Material, Ray, AABB};
 
 pub struct BoxShape {
     pmin: Vec3,

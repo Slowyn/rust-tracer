@@ -1,5 +1,6 @@
+use crate::hittables::HitRecord;
 use crate::math::{dot, Vec3};
-use crate::physics::{reflect, HitRecord, Material, Ray};
+use crate::physics::{reflect, Material, Ray};
 use crate::random_in_unit_sphere;
 
 pub struct Metal {

@@ -1,5 +1,6 @@
+use crate::hittables::{HitRecord, Hitable};
 use crate::math::{dot, Vec3};
-use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
+use crate::physics::{Material, Ray, AABB};
 use std::f32::consts::PI;
 
 #[derive(Copy, Clone)]

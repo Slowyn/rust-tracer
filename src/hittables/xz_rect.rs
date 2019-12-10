@@ -1,5 +1,6 @@
+use crate::hittables::{HitRecord, Hitable};
 use crate::math::Vec3;
-use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
+use crate::physics::{Material, Ray, AABB};
 
 pub struct XZRect<T: Material> {
     x0: f32,

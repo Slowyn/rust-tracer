@@ -1,6 +1,6 @@
-use crate::hittables::HittableList;
+use crate::hittables::{Hitable, HittableList};
 use crate::math::Vec3;
-use crate::physics::{Camera, Hitable, Ray};
+use crate::physics::{Camera, Ray};
 use rand::prelude::*;
 use rayon::prelude::*;
 

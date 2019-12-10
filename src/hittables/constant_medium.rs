@@ -1,6 +1,7 @@
+use crate::hittables::{HitRecord, Hitable};
 use crate::materials::Isotropic;
 use crate::math::Vec3;
-use crate::physics::{HitRecord, Hitable, Material, Ray, AABB};
+use crate::physics::{Material, Ray, AABB};
 use crate::rand::prelude::*;
 use crate::textures::Texture;
 

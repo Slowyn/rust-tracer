@@ -1,5 +1,6 @@
+use crate::hittables::HitRecord;
 use crate::math::Vec3;
-use crate::physics::{HitRecord, Material, Ray};
+use crate::physics::{Material, Ray};
 use crate::textures::Texture;
 
 pub struct DiffuseLight<T: Texture> {

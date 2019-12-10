@@ -1,4 +1,5 @@
-use crate::physics::{surrounding_box, HitRecord, Hitable, Ray, AABB};
+use crate::hittables::{HitRecord, Hitable};
+use crate::physics::{surrounding_box, Ray, AABB};
 use std::cmp::Ordering;
 use std::f32;
 

@@ -1,5 +1,6 @@
+use crate::hittables::{HitRecord, Hitable};
 use crate::math::Vec3;
-use crate::physics::{HitRecord, Hitable, Ray, AABB};
+use crate::physics::{Ray, AABB};
 use std::f32::consts::PI;
 
 pub struct RotateY<T: Hitable> {
