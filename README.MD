@@ -6,7 +6,7 @@ Toy Ray Tracer written in Rust. Based on Peter Shirley's Ray Tracing The Next We
 ![Example of rendering](https://raw.githubusercontent.com/Slowyn/rust-tracer/master/tracing.png)
 
 #### Ray Tracing The Next Week final scene
-![Example of rendering](https://raw.githubusercontent.com/Slowyn/rust-tracer/master/tracing2.png)
+![Example of rendering](https://raw.githubusercontent.com/Slowyn/rust-tracer/master/tracing2.jpg)
 
 ## Credits
 
