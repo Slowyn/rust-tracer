@@ -29,7 +29,7 @@ impl Scene {
         }
     }
 
-    pub fn render(&self) -> Vec<u8> {
+    pub fn render(&self) -> Vec<(u8, u8, u8)> {
         let nx = self.width;
         let ny = self.height;
         let ns = self.rays_per_pixel;
@@ -38,7 +38,7 @@ impl Scene {
             .rev()
             .flat_map(|y| {
                 (0..nx)
-                    .flat_map(|x| {
+                    .map(|x| {
                         let mut col = Vec3::default();
                         for _s in 0..ns {
                             let mut rng = rand::thread_rng();
@@ -53,11 +53,11 @@ impl Scene {
                         let r = (255.99 * col.r()).min(255.0) as u8;
                         let g = (255.99 * col.g()).min(255.0) as u8;
                         let b = (255.99 * col.b()).min(255.0) as u8;
-                        vec![r, g, b]
+                        (r, g, b)
                     })
-                    .collect::<Vec<u8>>()
+                    .collect::<Vec<(u8, u8, u8)>>()
             })
-            .collect::<Vec<u8>>()
+            .collect::<Vec<(u8, u8, u8)>>()
     }
 }
 

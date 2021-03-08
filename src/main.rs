@@ -5,10 +5,10 @@ mod physics;
 mod scene;
 mod textures;
 
+extern crate image;
 extern crate indicatif;
 extern crate rand;
 extern crate rayon;
-extern crate stb_image;
 
 use crate::hittables::{
     BoxShape, ConstantMedium, FlipNormal, RotateY, Translate, XYRect, XZRect, YZRect, BVH,
@@ -16,6 +16,8 @@ use crate::hittables::{
 use crate::materials::DiffuseLight;
 use crate::textures::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 use hittables::{Hitable, HittableList, MovingSphere, Sphere};
+use image::io::Reader as ImageReader;
+use image::{ImageBuffer, RgbImage, ImageResult};
 use indicatif::ProgressBar;
 use materials::{Dielectric, Lambertian, Metal};
 use math::Vec3;
@@ -23,8 +25,7 @@ use physics::{Camera, Ray};
 use rand::prelude::*;
 use rayon::prelude::*;
 use scene::Scene;
-use stb_image::image;
-use stb_image::image::LoadResult;
+use std::env;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -171,17 +172,20 @@ fn final_scene() -> HittableList {
     );
     scene.push(constant_medium2);
 
-    let path = Path::new("./earthmap.jpg");
-    let load_result = image::load(path);
-    let image = match load_result {
-        LoadResult::ImageU8(image) => image,
-        _ => panic!["Image was not loaded!"],
-    };
+    let image = ImageReader::open("./earthmap.jpg")
+        .expect("Failed to open file")
+        .decode()
+        .expect("Failed to decode image")
+        .into_rgb8();
 
     let earth = Sphere::new(
         100.0,
         Vec3::new(400.0, 200.0, 400.0),
-        Lambertian::new(ImageTexture::new(image.data, image.width, image.height)),
+        Lambertian::new(ImageTexture::new(
+            image.as_raw().to_vec(),
+            image.width() as usize,
+            image.height() as usize,
+        )),
     );
     scene.push(earth);
 
@@ -215,11 +219,16 @@ fn final_scene() -> HittableList {
     scene
 }
 
-fn main() -> std::io::Result<()> {
-    let width = 1366;
-    let height = 768;
-    let rays_per_pixel = 50;
-
+fn main() -> ImageResult<()> {
+    let width = 1920;
+    let height = 1080;
+    let rays_per_pixel = match env::args().nth(1) {
+        Some(x) => x
+            .parse::<u32>()
+            .expect("Expected to get a number of rays per pixel"),
+        None => 100,
+    };
+    println!("Rays per pixel: {:?}", rays_per_pixel);
     let lookfrom = Vec3::new(478.0, 278.0, -600.0);
     let lookat = Vec3::new(278.0, 278.0, 0.0);
     let focus_dist = 10.0;
@@ -240,12 +249,10 @@ fn main() -> std::io::Result<()> {
     let scene = Scene::new(camera, world, width, height, rays_per_pixel);
     let pixels = scene.render();
 
-    let mut image = File::create("img.ppm")?;
-    let capacity = (width * height) as usize;
-    let mut content = String::new();
-    content.push_str(format!("P3\n{} {}\n255\n", width, height).as_str());
-    for pixel in pixels.chunks(3) {
-        content.push_str(format!("{} {} {}\n", pixel[0], pixel[1], pixel[2]).as_str())
+    let mut image_buffer: RgbImage = ImageBuffer::new(width, height);
+    for (index, pixel) in image_buffer.pixels_mut().enumerate() {
+        let pixel_color = pixels[index];
+        *pixel = image::Rgb([pixel_color.0, pixel_color.1, pixel_color.2]);
     }
-    image.write_all(content.as_bytes())
+    image_buffer.save("img.png")
 }
